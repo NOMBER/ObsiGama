@@ -1,0 +1,9 @@
+{
+  "id": "game-platform",
+  "name": "S",
+  "version": "0.1.0",
+  "minAppVersion": "1.8.7",
+  "description": "A game hub for Obsidian: account, profile, game library, achievements and leaderboards for game plugins that opt in. Requires an online account.",
+  "author": "NOMBER",
+  "isDesktopOnly": false
+}

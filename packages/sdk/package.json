@@ -1,0 +1,14 @@
+{
+  "name": "@s-platform/sdk",
+  "version": "0.1.0",
+  "description": "Dependency-free SDK that lets an Obsidian game plugin keep local stats/achievements/best scores and optionally sync them to the S game hub.",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": ["src"],
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc -noEmit -p tsconfig.json"
+  }
+}
