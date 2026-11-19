@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-game-platform",
+  "name": "obsigama",
   "version": "0.1.0",
   "private": true,
   "description": "OBSIGAMA: a game hub for Obsidian. Accounts, profiles, library and leaderboards on Supabase, plus an SDK for game plugins.",
