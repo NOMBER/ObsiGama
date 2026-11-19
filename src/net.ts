@@ -2,11 +2,11 @@
 import { requestUrl } from "obsidian";
 
 export class OfflineError extends Error {
-  constructor() { super("S is offline: the Online / sync switch is off"); }
+  constructor() { super("OBSIGAMA is offline: the Online / sync switch is off"); }
 }
 
 /**
- * fetch() that refuses to touch the network when S is switched off, and optionally sends requests
+ * fetch() that refuses to touch the network when OBSIGAMA is switched off, and optionally sends requests
  * through Obsidian's requestUrl (not subject to browser CORS). Supabase allows any origin, so the
  * normal fetch works; requestUrl is a fallback for networks/proxies that break CORS.
  */

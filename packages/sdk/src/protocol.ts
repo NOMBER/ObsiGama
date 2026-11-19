@@ -1,14 +1,14 @@
-// Wire protocol between a game plugin (via this SDK) and the S hub plugin.
-// Both sides run in the same Obsidian process; S holds the account session and the
-// Supabase keys. Games never see tokens: they hand batches of events to S.
+// Wire protocol between a game plugin (via this SDK) and the OBSIGAMA hub plugin.
+// Both sides run in the same Obsidian process; OBSIGAMA holds the account session and the
+// Supabase keys. Games never see tokens: they hand batches of events to OBSIGAMA.
 
 import type { GameManifest } from "./manifest";
 
-/** Obsidian plugin id of the S hub. Stable on purpose: the display name may change, the id should not. */
+/** Obsidian plugin id of the OBSIGAMA hub. Stable on purpose: the display name may change, the id should not. */
 export const PLATFORM_PLUGIN_ID = "game-platform";
-/** Workspace event S triggers when its API is ready (and on every status change). */
+/** Workspace event OBSIGAMA triggers when its API is ready (and on every status change). */
 export const PLATFORM_READY_EVENT = "game-platform:ready";
-/** Workspace event S triggers when it unloads. */
+/** Workspace event OBSIGAMA triggers when it unloads. */
 export const PLATFORM_UNLOAD_EVENT = "game-platform:unload";
 /** Bump only on breaking changes of PlatformAPI. */
 export const PROTOCOL_VERSION = 1;
@@ -63,30 +63,30 @@ export type SubmitResponse =
       results: EventResult[];
       /** achievements newly unlocked on the server by this batch */
       unlocked: string[];
-      /** S platform badges newly awarded by the server (evaluated server-side, e.g. "10 runs") */
+      /** OBSIGAMA platform badges newly awarded by the server (evaluated server-side, e.g. "10 runs") */
       badges: AwardedBadge[];
-      /** account-wide values for this game after the batch (what the S profile shows) */
+      /** account-wide values for this game after the batch (what the OBSIGAMA profile shows) */
       stats: Record<string, StatValue>;
     }
   | { ok: false; error: PlatformError; message?: string; retryAfterMs?: number };
 
 export type PlatformError =
-  | "disabled" // S's "Online / sync" switch is off: S makes no network requests
+  | "disabled" // OBSIGAMA's "Online / sync" switch is off: OBSIGAMA makes no network requests
   | "signed-out"
-  | "not-linked" // the player has not approved this game in S (or approved another account)
-  | "unknown-game" // the game is not registered on the S server
+  | "not-linked" // the player has not approved this game in OBSIGAMA (or approved another account)
+  | "unknown-game" // the game is not registered on the OBSIGAMA server
   | "rate-limited"
   | "network"
   | "server";
 
 export interface PlatformStatus {
-  /** S "Online / sync" master switch. false = S makes no network requests at all. */
+  /** OBSIGAMA "Online / sync" master switch. false = OBSIGAMA makes no network requests at all. */
   enabled: boolean;
   /** Supabase URL and key are configured. */
   configured: boolean;
   signedIn: boolean;
   userId: string | null;
-  /** S nickname (profiles.username) */
+  /** OBSIGAMA nickname (profiles.username) */
   username: string | null;
 }
 
@@ -99,7 +99,7 @@ export interface LinkRequest {
 
 export type LinkResponse = { ok: true; userId: string } | { ok: false; error: PlatformError | "denied"; message?: string };
 
-/** What S exposes as `plugin.api`. */
+/** What OBSIGAMA exposes as `plugin.api`. */
 export interface PlatformAPI {
   readonly protocol: number;
   readonly platformName: string;
@@ -107,10 +107,10 @@ export interface PlatformAPI {
   onStatusChange(cb: (s: PlatformStatus) => void): () => void;
   /** Linked for the currently signed-in account? */
   isLinked(gameId: string): boolean;
-  /** Asks the player (modal in S) to let this game sync to their account. */
+  /** Asks the player (modal in OBSIGAMA) to let this game sync to their account. */
   requestLink(req: LinkRequest): Promise<LinkResponse>;
   unlink(gameId: string): void;
   submit(req: SubmitRequest): Promise<SubmitResponse>;
-  /** Opens the S hub view (sign-in / profile). */
+  /** Opens the OBSIGAMA hub view (sign-in / profile). */
   openHub(): void;
 }

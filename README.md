@@ -1,26 +1,27 @@
-# S — a game hub for Obsidian
+# OBSIGAMA — a game hub for Obsidian
 
-> **S** is a placeholder name. It lives in one constant (`PLATFORM_NAME` in `src/brand.ts`) plus `manifest.json` → `name`.
+> The display name lives in one constant (`PLATFORM_NAME` in `src/brand.ts`) plus `manifest.json` → `name`.
+> The plugin id stays `game-platform`: game plugins find OBSIGAMA by that id.
 
-S is "Steam inside Obsidian": an online hub with your account, profile, game catalog, library, friends,
+OBSIGAMA is "Steam inside Obsidian": an online hub with your account, profile, game catalog, library, friends,
 achievements, badges and leaderboards. Games are **separate Obsidian plugins** (on GitHub) that stay fully
-playable offline. A game that opts in (its own **Connect to S** toggle, off by default) uses the small
-[`@s-platform/sdk`](packages/sdk) to send each finished run to your S account.
+playable offline. A game that opts in (its own **Connect to OBSIGAMA** toggle, off by default) uses the small
+[`@obsigama/sdk`](packages/sdk) to send each finished run to your OBSIGAMA account.
 
 ```
- game plugin (offline)          S plugin (online hub)                Supabase (free tier)
- ┌────────────────────┐  SDK   ┌─────────────────────────┐  HTTPS  ┌──────────────────────────┐
- │ local stats/bests/ │──────▶ │ account + session        │───────▶ │ Auth, Postgres + RLS,     │
- │ achievements, queue│ in-proc│ consent per game         │  RPC    │ ingest_batch() validation │
- │ "Connect to S" ☐   │◀────── │ catalog/library/friends  │◀─────── │ badges, activity, Storage │
- └────────────────────┘ status └─────────────────────────┘          └──────────────────────────┘
+ game plugin (offline)        OBSIGAMA plugin (online hub)     Supabase (free tier)
+ ┌──────────────────────┐ SDK  ┌──────────────────────────┐ HTTPS ┌──────────────────────────┐
+ │ local stats / bests / │────▶│ account + session         │──────▶│ Auth, Postgres + RLS,     │
+ │ achievements, queue   │ in- │ consent per game          │  RPC  │ ingest_batch() validation │
+ │ "Connect to OBSIGAMA" │◀────│ catalog/library/friends   │◀──────│ badges, activity, Storage │
+ └──────────────────────┘proc └──────────────────────────┘       └──────────────────────────┘
 ```
 
 ## What's in this repo
 
 | Path | What |
 |---|---|
-| `src/` | The S Obsidian plugin (TypeScript, esbuild, plain DOM UI) |
+| `src/` | The OBSIGAMA Obsidian plugin (TypeScript, esbuild, plain DOM UI) |
 | `src/views/hub-view.ts` | Hub: Catalog, Library, Friends, Profile (public profiles, edit, avatar upload) |
 | `src/backend.ts` | Supabase client, auth, reads/writes, avatar upload |
 | `src/platform-api.ts` | In-process API that game plugins call through the SDK, consent dialog |
@@ -37,7 +38,7 @@ playable offline. A game that opts in (its own **Connect to S** toggle, off by d
 
 As required by Obsidian's developer policies:
 
-- **S connects to the internet.** It talks only to the Supabase project whose URL you enter in its settings
+- **OBSIGAMA connects to the internet.** It talks only to the Supabase project whose URL you enter in its settings
   (your own project; nothing is preconfigured). It is used for: your account (sign-up/sign-in), profile and
   avatar, the game catalog, your library, friends, achievements, badges, leaderboards, and the results that
   connected games send.
@@ -45,7 +46,7 @@ As required by Obsidian's developer policies:
 - **What is sent:** email and password (to Supabase Auth), your nickname, display name, bio, avatar image (as WebP),
   privacy setting, friend requests, and for each game you explicitly connect: stats, best scores, achievements
   and run durations. Nothing is read from your notes. No telemetry, no ads, no analytics.
-- **Online / sync switch:** in S settings. When **off**, S makes **no network requests at all**, accepts
+- **Online / sync switch:** in OBSIGAMA settings. When **off**, OBSIGAMA makes **no network requests at all**, accepts
   nothing from games, and games keep their results in a local queue until you switch it back on. It is on by default.
 - Your login session is stored in Obsidian's per-vault local storage (not in `data.json`, so it does not end up in
   vault sync or git). Game plugins never see it.
@@ -71,11 +72,11 @@ As required by Obsidian's developer policies:
    - Supabase's built-in email sender is only for testing (a few emails per hour, and only to your project's team
      members). For real users set up custom SMTP (*Authentication* → *Emails* → *SMTP settings*), e.g. a free
      Resend or Brevo account.
-   - For **email codes** (the "Email code" tab in S), edit the *Magic Link* email template so it contains `{{ .Token }}`
+   - For **email codes** (the "Email code" tab in OBSIGAMA), edit the *Magic Link* email template so it contains `{{ .Token }}`
      (the 6-digit code) instead of / in addition to the link.
 4. **Copy the keys:** *Project Settings* → *API*: **Project URL** and the **anon / publishable** key.
    Never use the `service_role` / secret key in the plugin.
-5. **In Obsidian:** Settings → S → paste the URL and anon key → **Apply**. Open S from the ribbon (gamepad icon)
+5. **In Obsidian:** Settings → OBSIGAMA → paste the URL and anon key → **Apply**. Open OBSIGAMA from the ribbon (gamepad icon)
    and create your account.
 
 Free tier fit: fewer than 1,000 players use a tiny share of the free limits (50k monthly users, 500 MB database,
@@ -84,13 +85,13 @@ requests; open the dashboard to resume it.
 
 ## Images: always WebP, as light as possible
 
-- Every image uploaded through S is converted **on the device** before upload: decoded, resized (avatars: center-crop
+- Every image uploaded through OBSIGAMA is converted **on the device** before upload: decoded, resized (avatars: center-crop
   to 256×256; icons: fit in 256×256; badges: 128×128), then encoded to WebP with a quality search that keeps the
   highest quality under the size budget (avatars < 50 KB, icons < 40 KB, badges < 16 KB) and shrinks the image if
   needed. See `src/image/`.
 - The server enforces it: the `avatars` and `game-icons` buckets accept **only `image/webp`**, with hard size limits
   (512 KB / 256 KB). Users can only write `avatars/<their user id>/…`.
-- Known gap: Safari/iOS cannot encode WebP from a canvas; S shows "This device cannot encode WebP images yet" there.
+- Known gap: Safari/iOS cannot encode WebP from a canvas; OBSIGAMA shows "This device cannot encode WebP images yet" there.
   Later options: a small WASM encoder, or server-side re-encoding in a Supabase Edge Function.
 
 ## Badges
@@ -103,7 +104,7 @@ Badges are rows in `public.badges`; the server awards them, never the client:
   friendship accepted). After a counter changes, only **active badges of that rule type that the user does not own
   yet** are checked (`award_badges()`); owned badges are never re-checked. Each award is unique per user
   (`ON CONFLICT DO NOTHING`) and writes an activity entry. Newly awarded badges come back in the sync response so the
-  game or S can show a toast; profiles read badges in the same `get_profile()` call.
+  game or OBSIGAMA can show a toast; profiles read badges in the same `get_profile()` call.
 - **Add a badge:** insert a row, e.g.
   ```sql
   insert into public.badges (id, name, description, sort_order, rule_type, threshold)
@@ -126,7 +127,7 @@ To try it, copy `main.js`, `manifest.json`, `styles.css` into `<vault>/.obsidian
 ## Register a game
 
 ```bash
-node scripts/manifest-to-sql.mjs path/to/s-manifest.json --listed --repo https://github.com/owner/repo --description "..."
+node scripts/manifest-to-sql.mjs path/to/obsigama-manifest.json --listed --repo https://github.com/owner/repo --description "..."
 ```
 Run the printed SQL in the SQL editor (or save it as a new migration). See [INTEGRATION.md](INTEGRATION.md).
 

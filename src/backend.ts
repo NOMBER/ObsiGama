@@ -1,4 +1,4 @@
-// Everything that talks to Supabase. Created lazily; torn down when S is switched offline.
+// Everything that talks to Supabase. Created lazily; torn down when OBSIGAMA is switched offline.
 import { createClient, type Session, type SupabaseClient } from "@supabase/supabase-js";
 import type { App } from "obsidian";
 import { makeFetch, OfflineError } from "./net";
@@ -113,7 +113,7 @@ export class Backend {
         this.session = sd.session;
         if (this.session) await this.loadUsername();
       } catch (e) {
-        console.warn("[S] session restore failed", e);
+        console.warn("[OBSIGAMA] session restore failed", e);
       }
     }
     this.emit();
@@ -158,7 +158,7 @@ export class Backend {
   /** The client, or an error explaining why there is none. */
   sb(): SupabaseClient {
     if (!this.settings().online) throw new OfflineError();
-    if (!this.client) throw new Error("Server is not configured. Open S settings and enter the Supabase URL and anon key.");
+    if (!this.client) throw new Error("Server is not configured. Open OBSIGAMA settings and enter the Supabase URL and anon key.");
     return this.client;
   }
 

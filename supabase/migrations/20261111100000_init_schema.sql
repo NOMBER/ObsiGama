@@ -1,5 +1,5 @@
--- S game hub: initial schema (Supabase / Postgres 15+)
--- Single-player offline games sync stats/scores/achievements through the S plugin.
+-- OBSIGAMA game hub: initial schema (Supabase / Postgres 15+)
+-- Single-player offline games sync stats/scores/achievements through the OBSIGAMA plugin.
 -- All writes to game progress go through SECURITY DEFINER RPCs; clients never write those tables.
 -- Messaging and the community hub are intentionally NOT here (later migrations).
 

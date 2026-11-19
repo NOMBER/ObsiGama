@@ -20,7 +20,7 @@ interface AdapterLike {
   write(path: string, data: string): Promise<void>;
 }
 
-export function pluginFileStorage(plugin: PluginLike, fileName = "s-sync.json"): SdkStorage {
+export function pluginFileStorage(plugin: PluginLike, fileName = "obsigama-sync.json"): SdkStorage {
   const app = plugin.app as { vault?: { adapter?: AdapterLike; configDir?: string } };
   const adapter = app.vault?.adapter;
   const dir = plugin.manifest.dir ?? `${app.vault?.configDir ?? ".obsidian"}/plugins/${plugin.manifest.id}`;

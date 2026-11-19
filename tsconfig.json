@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
-    "paths": { "@s-platform/sdk": ["packages/sdk/src/index.ts"] }
+    "paths": { "@obsigama/sdk": ["packages/sdk/src/index.ts"] }
   },
   "include": ["src/**/*.ts"]
 }

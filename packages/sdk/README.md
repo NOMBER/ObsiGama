@@ -1,7 +1,7 @@
-# @s-platform/sdk
+# @obsigama/sdk
 
 Zero-dependency SDK for Obsidian game plugins: offline-first local stats / best scores / achievements, and optional
-sync of every finished run to the player's **S** account. See [INTEGRATION.md](../../INTEGRATION.md).
+sync of every finished run to the player's **OBSIGAMA** account. See [INTEGRATION.md](../../INTEGRATION.md).
 
 ```ts
 const s = await SClient.create({ plugin: this, manifest });

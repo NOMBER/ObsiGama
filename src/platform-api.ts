@@ -1,9 +1,9 @@
-// The in-process API game plugins use (through @s-platform/sdk). S holds the session; games never see keys.
+// The in-process API game plugins use (through @obsigama/sdk). OBSIGAMA holds the session; games never see keys.
 import { App, Modal, Setting } from "obsidian";
 import {
   PROTOCOL_VERSION, type AwardedBadge, type EventResult, type LinkRequest, type PlatformError, type LinkResponse, type PlatformAPI, type PlatformStatus,
   type SubmitRequest, type SubmitResponse,
-} from "@s-platform/sdk";
+} from "@obsigama/sdk";
 import { PLATFORM_NAME } from "./brand";
 import type SPlugin from "./main";
 import { OfflineError } from "./net";
@@ -30,7 +30,7 @@ export class SPlatformAPI implements PlatformAPI {
 
   notify(): void {
     const st = this.getStatus();
-    for (const cb of this.subs) { try { cb(st); } catch (e) { console.error("[S] status listener", e); } }
+    for (const cb of this.subs) { try { cb(st); } catch (e) { console.error("[OBSIGAMA] status listener", e); } }
   }
 
   isLinked(gameId: string): boolean {

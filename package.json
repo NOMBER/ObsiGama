@@ -2,9 +2,11 @@
   "name": "obsidian-game-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "S: a game hub for Obsidian (placeholder name). Accounts, profiles, library and leaderboards on Supabase, plus an SDK for game plugins.",
+  "description": "OBSIGAMA: a game hub for Obsidian. Accounts, profiles, library and leaderboards on Supabase, plus an SDK for game plugins.",
   "main": "main.js",
-  "workspaces": ["packages/sdk"],
+  "workspaces": [
+    "packages/sdk"
+  ],
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "npm run typecheck && node esbuild.config.mjs production",
@@ -12,7 +14,12 @@
     "test": "vitest run",
     "check": "npm run build && npm test"
   },
-  "keywords": ["obsidian", "plugin", "games", "supabase"],
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "games",
+    "supabase"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.20.5",

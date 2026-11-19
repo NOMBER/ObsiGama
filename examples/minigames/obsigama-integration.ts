@@ -1,14 +1,14 @@
-// How the Mini Games plugin (12 games, CommonJS, stats in data.json) connects to S.
+// How the Mini Games plugin (12 games, CommonJS, stats in data.json) connects to OBSIGAMA.
 // Based on the real structure of the plugin: main.js -> recordSession(id, r) and engine.onSession().
 // The plugin is plain JS; the same calls work from JS (drop the types).
 //
 // 1. Copy packages/sdk/src into the game as e.g. src/s-sdk/ (or add it as a dependency) and bundle it.
-// 2. Ship s-manifest.json with the plugin and register it on the S server once (scripts/manifest-to-sql.mjs).
+// 2. Ship obsigama-manifest.json with the plugin and register it on the OBSIGAMA server once (scripts/manifest-to-sql.mjs).
 // 3. Wire three places: onload, recordSession, the settings tab. That's all.
 
 import { Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
-import { addConnectSetting, SClient, type GameManifest, type SdkLang } from "@s-platform/sdk";
-import manifestJson from "./s-manifest.json";
+import { addConnectSetting, SClient, type GameManifest, type SdkLang } from "@obsigama/sdk";
+import manifestJson from "./obsigama-manifest.json";
 
 const manifest = manifestJson as GameManifest;
 
@@ -21,13 +21,13 @@ interface SessionResult { score?: number; ms?: number; win?: boolean }
 export class MiniGamesS {
   client!: SClient;
 
-  /** onload(): after `this.stats` is loaded. Never throws; the game works the same without S. */
+  /** onload(): after `this.stats` is loaded. Never throws; the game works the same without OBSIGAMA. */
   static async init(plugin: Plugin, stats: MiniGamesStats, lang: SdkLang): Promise<MiniGamesS> {
     const me = new MiniGamesS();
     me.client = await SClient.create({ plugin, manifest });
     // one-time (idempotent) import of progress made before the SDK existed: totals, bests, unlocks
     me.client.importTotals(MiniGamesS.totals(stats));
-    me.client.on("badge", (b) => new Notice(lang === "ru" ? `Значок ${b.name} в профиле S` : `S badge earned: ${b.name}`, 6000));
+    me.client.on("badge", (b) => new Notice(lang === "ru" ? `Значок ${b.name} в профиле OBSIGAMA` : `OBSIGAMA badge earned: ${b.name}`, 6000));
     return me;
   }
 
@@ -50,7 +50,7 @@ export class MiniGamesS {
   /**
    * In MiniGamesPlugin.recordSession(id, r), right after `const fresh = engine.onSession(...)`:
    *   this.s?.onSession(id, r, fresh.map(a => a.id));
-   * Sends this one game's result in a single request if "Connect to S" is on; otherwise only local.
+   * Sends this one game's result in a single request if "Connect to OBSIGAMA" is on; otherwise only local.
    */
   onSession(gameId: string, r: SessionResult, freshAchievementIds: string[]): void {
     const score = Math.max(0, Math.round(r.score || 0));
@@ -77,7 +77,7 @@ export class MiniGamesSettingTabWithS extends PluginSettingTab {
     el.empty();
     // ... existing settings ...
     if (this.p.s) {
-      new Setting(el).setName("S").setHeading();
+      new Setting(el).setName("OBSIGAMA").setHeading();
       this.disposeS = addConnectSetting(el, this.p.s.client, Setting, { lang: this.p.settings.language });
     }
   }

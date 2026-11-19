@@ -14,7 +14,7 @@ const ctx = await esbuild.context({
     "@lezer/common", "@lezer/highlight", "@lezer/lr",
     ...builtins,
   ],
-  alias: { "@s-platform/sdk": "./packages/sdk/src/index.ts" },
+  alias: { "@obsigama/sdk": "./packages/sdk/src/index.ts" },
   // supabase-js: use the browser build, never Node built-ins (the plugin must run on mobile)
   mainFields: ["browser", "module", "main"],
   conditions: ["browser"],

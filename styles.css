@@ -1,4 +1,4 @@
-/* S hub: minimal, theme-native styles */
+/* OBSIGAMA hub: minimal, theme-native styles */
 .s-hub { padding: 0 !important; }
 .s-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--background-modifier-border); position: sticky; top: 0; background: var(--background-primary); z-index: 1; }
 .s-logo { font-weight: 700; font-size: 1.2em; margin-right: 8px; }

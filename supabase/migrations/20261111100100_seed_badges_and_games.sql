@@ -3,8 +3,8 @@
 -- Badges. Add more by inserting rows; rule_type must be one of the types handled in award_badges().
 -- Icons: upload WebP files to the game-icons bucket under badges/ and set icon_url.
 insert into public.badges (id, name, description, sort_order, rule_type, threshold) values
-  ('welcome',           'Welcome',            'Joined S',                          10, 'on_register',        '{"gte": 1}'),
-  ('first_game',        'First game',          'Played a game on S for the first time', 20, 'count_games',  '{"gte": 1}'),
+  ('welcome',           'Welcome',            'Joined OBSIGAMA',                          10, 'on_register',        '{"gte": 1}'),
+  ('first_game',        'First game',          'Played a game on OBSIGAMA for the first time', 20, 'count_games',  '{"gte": 1}'),
   ('ten_runs',          '10 runs',             'Finished 10 runs or matches',       30, 'count_runs',         '{"gte": 10}'),
   ('first_achievement', 'First achievement',   'Unlocked the first achievement',    40, 'count_achievements', '{"gte": 1}'),
   ('first_friend',      'First friend',        'Added the first friend',            50, 'count_friends',      '{"gte": 1}')

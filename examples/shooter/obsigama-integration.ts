@@ -1,4 +1,4 @@
-// How Vault Shards (the Doom-style 3D shooter, TypeScript) connects to S.
+// How Vault Shards (the Doom-style 3D shooter, TypeScript) connects to OBSIGAMA.
 // Based on its real structure: progress.stats are cumulative counters (kills, k_quill, max_shards...),
 // progress.achievements is { id: timestamp }, progress.lore lists found Codex pages.
 //
@@ -6,8 +6,8 @@
 // winning, or starting a new run. At the end we send the deltas of that session in ONE request.
 
 import { Notice, Plugin, Setting } from "obsidian";
-import { addConnectSetting, SClient, statusText, type GameManifest, type SdkLang } from "@s-platform/sdk";
-import manifestJson from "./s-manifest.json";
+import { addConnectSetting, SClient, statusText, type GameManifest, type SdkLang } from "@obsigama/sdk";
+import manifestJson from "./obsigama-manifest.json";
 
 const manifest = manifestJson as GameManifest;
 const SUM = new Set(manifest.stats!.filter((s) => s.agg === "sum" || s.agg === "count").map((s) => s.id));
@@ -31,7 +31,7 @@ export class ShooterS {
       best: progress.stats.best_time ? { fastest_win_s: progress.stats.best_time } : {},
       achievements: progress.achievements,
     });
-    me.client.on("badge", (b) => new Notice(lang === "ru" ? `Значок S: ${b.name}` : `S badge: ${b.name}`, 6000));
+    me.client.on("badge", (b) => new Notice(lang === "ru" ? `Значок OBSIGAMA: ${b.name}` : `OBSIGAMA badge: ${b.name}`, 6000));
     return me;
   }
 
@@ -64,7 +64,7 @@ export class ShooterS {
 
   /** In ShardsSettingTab.display(); returns a dispose function for hide(). */
   addSettings(containerEl: HTMLElement, lang: SdkLang): () => void {
-    new Setting(containerEl).setName("S").setHeading();
+    new Setting(containerEl).setName("OBSIGAMA").setHeading();
     return addConnectSetting(containerEl, this.client, Setting, { lang });
   }
 

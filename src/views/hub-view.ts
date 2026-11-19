@@ -1,4 +1,4 @@
-// S hub: catalog, library, friends, profiles. Plain DOM in one ItemView, no framework.
+// OBSIGAMA hub: catalog, library, friends, profiles. Plain DOM in one ItemView, no framework.
 import { ItemView, Notice, setIcon, type WorkspaceLeaf } from "obsidian";
 import { fmtDate, fromNow } from "./time";
 import { HUB_VIEW_TYPE, PLATFORM_NAME, RIBBON_ICON } from "../brand";

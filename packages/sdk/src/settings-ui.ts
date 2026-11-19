@@ -1,4 +1,4 @@
-// Ready-made "Connect to S" toggle + live sync status for a game's settings tab.
+// Ready-made "Connect to OBSIGAMA" toggle + live sync status for a game's settings tab.
 // Pass Obsidian's `Setting` class in, so the SDK itself stays dependency-free.
 
 import type { SClient, SyncStatus } from "./client";

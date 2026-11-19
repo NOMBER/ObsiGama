@@ -1,5 +1,5 @@
 import { Notice, Plugin, type WorkspaceLeaf } from "obsidian";
-import { PLATFORM_READY_EVENT, PLATFORM_UNLOAD_EVENT } from "@s-platform/sdk";
+import { PLATFORM_READY_EVENT, PLATFORM_UNLOAD_EVENT } from "@obsigama/sdk";
 import { Backend } from "./backend";
 import { HUB_VIEW_TYPE, PLATFORM_NAME, RIBBON_ICON } from "./brand";
 import { SPlatformAPI } from "./platform-api";

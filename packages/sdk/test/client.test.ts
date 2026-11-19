@@ -11,7 +11,7 @@ function fakePlatform(over: Partial<PlatformStatus> = {}) {
   const sent: SubmitRequest[] = [];
   let fail: SubmitResponse | null = null;
   const api: PlatformAPI = {
-    protocol: 1, platformName: "S",
+    protocol: 1, platformName: "OBSIGAMA",
     getStatus: () => ({ ...status }),
     onStatusChange: (cb) => { subs.add(cb); return () => subs.delete(cb); },
     isLinked: (g) => linked.has(g),
@@ -35,7 +35,7 @@ const plugin = { app: {}, manifest: { id: "test-game" } };
 const noTimers = { setTimer: () => 0, clearTimer: () => {} };
 
 describe("SClient", () => {
-  it("works fully offline without S and never throws", async () => {
+  it("works fully offline without OBSIGAMA and never throws", async () => {
     const c = await SClient.create({ plugin, manifest: M, storage: memoryStorage(), platform: () => null, ...noTimers, log: () => {} });
     await c.endRun({ durationMs: 1000, stats: { kills: 3, nope: 1 }, scores: { score: 50 }, achievements: ["nohit"] });
     c.reportStat("best_wave", "x" as unknown as number);
@@ -67,7 +67,7 @@ describe("SClient", () => {
     expect(c.getStatus()).toMatchObject({ state: "synced", pending: 0 });
   });
 
-  it("S disabled or failing: results stay queued and go out when S comes back", async () => {
+  it("OBSIGAMA disabled or failing: results stay queued and go out when OBSIGAMA comes back", async () => {
     const p = fakePlatform();
     const c = await SClient.create({ plugin, manifest: M, storage: memoryStorage(), platform: () => p.api, ...noTimers, log: () => {} });
     await c.setConnect(true);
@@ -92,7 +92,7 @@ describe("SClient", () => {
     const p = fakePlatform();
     const c = await SClient.create({ plugin, manifest: M, storage: memoryStorage(), platform: () => p.api, ...noTimers, log: () => {} });
     await c.setConnect(true);
-    p.linked.clear(); // e.g. unlinked in S
+    p.linked.clear(); // e.g. unlinked in OBSIGAMA
     (p.api.requestLink as ReturnType<typeof vi.fn>).mockClear();
     await c.endRun({ stats: { kills: 1 } });
     expect(p.api.requestLink).not.toHaveBeenCalled();

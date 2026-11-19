@@ -9,7 +9,7 @@ export interface LinkedGame {
 }
 
 export interface SSettings {
-  /** master switch: false = S makes no network requests at all */
+  /** master switch: false = OBSIGAMA makes no network requests at all */
   online: boolean;
   supabaseUrl: string;
   supabaseAnonKey: string;

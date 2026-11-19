@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Registers a game on S: prints SQL that upserts the catalog row and applies the manifest.
-// Usage: node scripts/manifest-to-sql.mjs path/to/s-manifest.json [--listed] [--repo https://github.com/o/r] [--description "..."]
+// Registers a game on OBSIGAMA: prints SQL that upserts the catalog row and applies the manifest.
+// Usage: node scripts/manifest-to-sql.mjs path/to/obsigama-manifest.json [--listed] [--repo https://github.com/o/r] [--description "..."]
 // Paste the output into the Supabase SQL editor (or save it as a new file in supabase/migrations/).
 import { readFileSync } from "node:fs";
 

@@ -1,6 +1,6 @@
 // SClient: the one object a game plugin creates. Offline-first: every call updates local
-// progress immediately and works without S. When the player turns on "Connect to S",
-// the SDK links to S (in the same vault) and sends each finished run in one batch.
+// progress immediately and works without OBSIGAMA. When the player turns on "Connect to OBSIGAMA",
+// the SDK links to OBSIGAMA (in the same vault) and sends each finished run in one batch.
 
 import type { GameManifest, StatDef } from "./manifest";
 import { findStat, validateManifest } from "./manifest";
@@ -16,16 +16,16 @@ import {
 import { pluginFileStorage, type PluginLike, type SdkStorage } from "./storage";
 
 export type SyncState =
-  | "off" // "Connect to S" is off: local only
-  | "no-platform" // S is not installed / not enabled in this vault
-  | "platform-disabled" // S's "Online / sync" switch is off
-  | "not-configured" // S has no server configured
-  | "signed-out" // nobody is signed in to S
-  | "needs-link" // player must approve this game in S (press "Sync now")
+  | "off" // "Connect to OBSIGAMA" is off: local only
+  | "no-platform" // OBSIGAMA is not installed / not enabled in this vault
+  | "platform-disabled" // OBSIGAMA's "Online / sync" switch is off
+  | "not-configured" // OBSIGAMA has no server configured
+  | "signed-out" // nobody is signed in to OBSIGAMA
+  | "needs-link" // player must approve this game in OBSIGAMA (press "Sync now")
   | "link-denied"
   | "syncing"
   | "synced" // nothing pending
-  | "pending" // something queued, will be sent after the next run / when S is back
+  | "pending" // something queued, will be sent after the next run / when OBSIGAMA is back
   | "error";
 
 export interface SyncStatus {
@@ -69,7 +69,7 @@ type Events = {
   synced: { accepted: number; rejected: EventResult[] };
 };
 
-const DEFAULT_PLATFORM_NAME = "S";
+const DEFAULT_PLATFORM_NAME = "OBSIGAMA";
 
 export class SClient {
   readonly manifest: GameManifest;
@@ -93,7 +93,7 @@ export class SClient {
     this.storage = opts.storage ?? pluginFileStorage(opts.plugin);
     this.now = opts.now ?? Date.now;
     const errs = validateManifest(opts.manifest);
-    if (errs.length) this.log("[S SDK] manifest problems:", errs);
+    if (errs.length) this.log("[OBSIGAMA SDK] manifest problems:", errs);
   }
 
   /** Creates the client and loads local progress. Never throws. */
@@ -102,7 +102,7 @@ export class SClient {
     try {
       c.state = normalizeState(await c.storage.load());
     } catch (e) {
-      c.log("[S SDK] could not load local state", e);
+      c.log("[OBSIGAMA SDK] could not load local state", e);
     }
     c.watchPlatform();
     opts.plugin.register?.(() => c.destroy());
@@ -110,7 +110,7 @@ export class SClient {
     return c;
   }
 
-  // ---------- local progress (works offline, without S) ----------
+  // ---------- local progress (works offline, without OBSIGAMA) ----------
 
   getStats(): Readonly<Record<string, StatValue>> { return this.state.stats; }
   getAchievements(): Readonly<Record<string, number>> { return this.state.achievements; }
@@ -122,7 +122,7 @@ export class SClient {
   reportStat(id: string, value: StatValue): void {
     this.safe(() => {
       const at = this.now();
-      if (!applyStat(this.state, this.manifest, id, value, at)) return this.log(`[S SDK] unknown or invalid stat "${id}"`);
+      if (!applyStat(this.state, this.manifest, id, value, at)) return this.log(`[OBSIGAMA SDK] unknown or invalid stat "${id}"`);
       this.queue([{ idem: newIdem(at), at, type: "stat", payload: { id, value } }]);
       this.afterLocalChange(at);
     });
@@ -131,7 +131,7 @@ export class SClient {
   submitScore(lb: string, value: number): void {
     this.safe(() => {
       const at = this.now();
-      if (applyScore(this.state, this.manifest, lb, value, at) === "invalid") return this.log(`[S SDK] invalid score for "${lb}"`);
+      if (applyScore(this.state, this.manifest, lb, value, at) === "invalid") return this.log(`[OBSIGAMA SDK] invalid score for "${lb}"`);
       this.queue([{ idem: newIdem(at), at, type: "score", payload: { lb, value } }]);
       this.saveSoon();
     });
@@ -149,8 +149,8 @@ export class SClient {
 
   /**
    * Call once when a match/run ends. Applies the results locally and, when connected,
-   * sends them right away in one request. If S is off or offline they wait in the queue
-   * and go out with the next run or when S comes back. Never throws.
+   * sends them right away in one request. If OBSIGAMA is off or offline they wait in the queue
+   * and go out with the next run or when OBSIGAMA comes back. Never throws.
    */
   async endRun(r: RunResult): Promise<void> {
     try {
@@ -160,11 +160,11 @@ export class SClient {
       ev.push({ idem: newIdem(at), at, type: "session", payload: { durationMs: dur } });
       for (const [id, v] of Object.entries(r.stats ?? {})) {
         if (applyStat(this.state, this.manifest, id, v, at)) ev.push({ idem: newIdem(at), at, type: "stat", payload: { id, value: v } });
-        else this.log(`[S SDK] unknown or invalid stat "${id}"`);
+        else this.log(`[OBSIGAMA SDK] unknown or invalid stat "${id}"`);
       }
       for (const [lb, v] of Object.entries(r.scores ?? {})) {
         if (applyScore(this.state, this.manifest, lb, v, at) !== "invalid") ev.push({ idem: newIdem(at), at, type: "score", payload: { lb, value: v } });
-        else this.log(`[S SDK] invalid score for "${lb}"`);
+        else this.log(`[OBSIGAMA SDK] invalid score for "${lb}"`);
       }
       for (const id of r.achievements ?? []) {
         if (applyAchievement(this.state, this.manifest, id, at)) {
@@ -177,7 +177,7 @@ export class SClient {
       await this.persist();
       if (this.state.connect) await this.flush();
     } catch (e) {
-      this.log("[S SDK] endRun failed", e);
+      this.log("[OBSIGAMA SDK] endRun failed", e);
     }
   }
 
@@ -205,11 +205,11 @@ export class SClient {
     });
   }
 
-  // ---------- connection to S ----------
+  // ---------- connection to OBSIGAMA ----------
 
   isConnectEnabled(): boolean { return this.state.connect; }
 
-  /** The game's own "Connect to S" toggle. Turning it on asks S for consent and backfills everything. */
+  /** The game's own "Connect to OBSIGAMA" toggle. Turning it on asks OBSIGAMA for consent and backfills everything. */
   async setConnect(on: boolean): Promise<void> {
     this.state.connect = on;
     this.state.linkDenied = false;
@@ -220,7 +220,7 @@ export class SClient {
     if (on) await this.flush({ interactive: true });
   }
 
-  /** Manual "Sync now" (may show S's consent dialog). */
+  /** Manual "Sync now" (may show OBSIGAMA's consent dialog). */
   syncNow(): Promise<void> {
     this.state.linkDenied = false;
     return this.flush({ interactive: true });
@@ -341,7 +341,7 @@ export class SClient {
         if (applyAchievement(this.state, this.manifest, id, this.now())) this.emit("achievement", { id, source: "server" });
       }
       for (const b of resp.badges ?? []) this.emit("badge", b);
-      if (rejected.length) this.log("[S SDK] rejected by server:", rejected);
+      if (rejected.length) this.log("[OBSIGAMA SDK] rejected by server:", rejected);
       this.clearRetry();
       await this.persist();
       this.emit("synced", { accepted, rejected });
@@ -404,7 +404,7 @@ export class SClient {
     attach();
   }
 
-  /** S came online / signed in / was switched back on: send what waited. */
+  /** OBSIGAMA came online / signed in / was switched back on: send what waited. */
   private onPlatformChange(): void {
     this.notifyStatus();
     const st = this.getStatus();
@@ -421,13 +421,13 @@ export class SClient {
 
   private emit<K extends keyof Events>(ev: K, d: Events[K]): void {
     for (const cb of (this.listeners[ev] ?? []) as Iterable<(x: Events[K]) => void>) {
-      try { cb(d); } catch (e) { this.log("[S SDK] listener error", e); }
+      try { cb(d); } catch (e) { this.log("[OBSIGAMA SDK] listener error", e); }
     }
   }
 
   private persist(): Promise<void> {
     const snapshot = JSON.parse(JSON.stringify(this.state));
-    this.saving = this.saving.then(() => this.storage.save(snapshot)).catch((e) => this.log("[S SDK] save failed", e));
+    this.saving = this.saving.then(() => this.storage.save(snapshot)).catch((e) => this.log("[OBSIGAMA SDK] save failed", e));
     return this.saving;
   }
 
@@ -454,7 +454,7 @@ export class SClient {
   }
 
   private safe(fn: () => void): void {
-    try { fn(); } catch (e) { this.log("[S SDK] error", e); }
+    try { fn(); } catch (e) { this.log("[OBSIGAMA SDK] error", e); }
   }
 
   private log(...a: unknown[]): void {

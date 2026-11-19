@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020", "module": "ESNext", "moduleResolution": "bundler", "strict": true, "noImplicitAny": true,
     "resolveJsonModule": true, "isolatedModules": true, "skipLibCheck": true, "lib": ["DOM", "ES2020"],
-    "baseUrl": "..", "paths": { "@s-platform/sdk": ["packages/sdk/src/index.ts"] }
+    "baseUrl": "..", "paths": { "@obsigama/sdk": ["packages/sdk/src/index.ts"] }
   },
   "include": ["**/*.ts"]
 }

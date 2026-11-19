@@ -1,5 +1,5 @@
 // Local, offline-first game progress kept by the SDK itself. Pure functions, no I/O.
-// Works with or without S: this is the source of truth on the device.
+// Works with or without OBSIGAMA: this is the source of truth on the device.
 
 import type { GameManifest, StatDef } from "./manifest";
 import { findAchievement, findBoard, findStat } from "./manifest";
@@ -7,13 +7,13 @@ import type { StatValue, SyncEvent } from "./protocol";
 
 export interface LocalState {
   v: 1;
-  /** the game's "Connect to S" toggle (opt-in, default off) */
+  /** the game's "Connect to OBSIGAMA" toggle (opt-in, default off) */
   connect: boolean;
-  /** S account this device's progress was backfilled to, null = not linked yet */
+  /** OBSIGAMA account this device's progress was backfilled to, null = not linked yet */
   linkedUserId: string | null;
   /** user id the last full snapshot was queued for; null forces a new backfill snapshot */
   snapshotFor: string | null;
-  /** the player said "no" in S's consent dialog; cleared when the toggle is switched again */
+  /** the player said "no" in OBSIGAMA's consent dialog; cleared when the toggle is switched again */
   linkDenied: boolean;
   stats: Record<string, StatValue>;
   /** client time of the last "latest" stat write (conflict rule: newest wins) */
