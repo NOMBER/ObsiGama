@@ -1,6 +1,6 @@
 # Supabase CLI config (used by `supabase start` for local dev and by `supabase link` / `db push`).
 # Hosted project settings (auth emails, SMTP) are changed in the dashboard; see README.
-project_id = "obsidian-game-platform"
+project_id = "obsigama"
 
 [api]
 enabled = true
@@ -22,8 +22,8 @@ file_size_limit = "1MiB"
 
 [auth]
 enabled = true
-site_url = "obsidian://game-platform-auth"
-additional_redirect_urls = ["obsidian://game-platform-auth"]
+site_url = "obsidian://obsigama-auth"
+additional_redirect_urls = ["obsidian://obsigama-auth"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 enable_signup = true

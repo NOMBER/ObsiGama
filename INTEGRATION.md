@@ -133,8 +133,8 @@ removed stats/boards are marked retired, never deleted).
 
 ## How it works inside
 
-- Discovery: `app.plugins.getPlugin("game-platform")?.api` (undocumented Obsidian API, guarded) plus the workspace
-  events `game-platform:ready` / `game-platform:unload`, so load order doesn't matter.
+- Discovery: `app.plugins.getPlugin("obsigama")?.api` (undocumented Obsidian API, guarded) plus the workspace
+  events `obsigama:ready` / `obsigama:unload`, so load order doesn't matter.
 - The SDK hands batches to OBSIGAMA (`api.submit`). OBSIGAMA checks its master switch, the session and the player's consent for
   this game, then calls the `ingest_batch` Postgres function with the player's JWT.
 - `ingest_batch` (SECURITY DEFINER): dedups by `(user, idem)`, rate-limits (1,000 events / 10 min), clamps

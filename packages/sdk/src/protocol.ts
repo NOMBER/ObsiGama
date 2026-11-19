@@ -5,11 +5,11 @@
 import type { GameManifest } from "./manifest";
 
 /** Obsidian plugin id of the OBSIGAMA hub. Stable on purpose: the display name may change, the id should not. */
-export const PLATFORM_PLUGIN_ID = "game-platform";
+export const PLATFORM_PLUGIN_ID = "obsigama";
 /** Workspace event OBSIGAMA triggers when its API is ready (and on every status change). */
-export const PLATFORM_READY_EVENT = "game-platform:ready";
+export const PLATFORM_READY_EVENT = "obsigama:ready";
 /** Workspace event OBSIGAMA triggers when it unloads. */
-export const PLATFORM_UNLOAD_EVENT = "game-platform:unload";
+export const PLATFORM_UNLOAD_EVENT = "obsigama:unload";
 /** Bump only on breaking changes of PlatformAPI. */
 export const PROTOCOL_VERSION = 1;
 

@@ -1,7 +1,7 @@
 # OBSIGAMA — a game hub for Obsidian
 
 > The display name lives in one constant (`PLATFORM_NAME` in `src/brand.ts`) plus `manifest.json` → `name`.
-> The plugin id stays `game-platform`: game plugins find OBSIGAMA by that id.
+> The plugin id is `obsigama`: game plugins find OBSIGAMA by that id, so it should not change after the first release.
 
 OBSIGAMA is "Steam inside Obsidian": an online hub with your account, profile, game catalog, library, friends,
 achievements, badges and leaderboards. Games are **separate Obsidian plugins** (on GitHub) that stay fully
@@ -122,7 +122,7 @@ npm test             # unit tests (SDK state/queue/client, image math)
 ./scripts/test-sql.sh   # SQL smoke tests; needs a local Postgres 15+ (PGHOST/PGPORT/PGUSER)
 ```
 
-To try it, copy `main.js`, `manifest.json`, `styles.css` into `<vault>/.obsidian/plugins/game-platform/` and enable it.
+To try it, copy `main.js`, `manifest.json`, `styles.css` into `<vault>/.obsidian/plugins/obsigama/` and enable it.
 
 ## Register a game
 

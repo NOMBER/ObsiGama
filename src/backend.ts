@@ -72,7 +72,7 @@ export interface Profile {
   activity?: { kind: string; game_id: string | null; ref: string | null; payload: Record<string, unknown>; created_at: string; friend: string | null }[];
 }
 
-const SESSION_KEY = "game-platform-auth";
+const SESSION_KEY = "obsigama-auth";
 
 export class Backend {
   private client: SupabaseClient | null = null;
