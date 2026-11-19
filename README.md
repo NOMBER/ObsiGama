@@ -142,4 +142,12 @@ Run the printed SQL in the SQL editor (or save it as a new migration). See [INTE
 
 ## License
 
-MIT
+- **Launcher (the OBSIGAMA plugin, `src/`, `supabase/`)**: [GNU AGPL-3.0](LICENSE).
+- **SDK (`packages/sdk/`) and integration examples (`examples/`)**: [MIT](packages/sdk/LICENSE), so any game plugin can bundle them freely.
+
+---
+
+<p align="center">
+  Made by <a href="https://nomberobsidian.github.io">NOMBER</a> ·
+  <a href="https://donatre.github.io">Support the project</a> 💜
+</p>
