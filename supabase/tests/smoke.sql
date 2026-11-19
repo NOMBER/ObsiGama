@@ -19,7 +19,7 @@ select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a
 
 -- clients cannot write progress tables or counters directly
 do $$ begin
-  begin insert into user_stats (user_id, game_id, stat_id, value) values (auth.uid(), 'vault-shards', 'kills', 999);
+  begin insert into user_stats (user_id, game_id, stat_id, value) values (auth.uid(), 'hellvault', 'kills', 999);
         raise exception 'FAIL: direct stat insert allowed';
   exception when insufficient_privilege then raise notice 'ok - direct stat insert denied'; end;
   begin update profiles set runs_count = 999 where id = auth.uid();
@@ -45,33 +45,33 @@ select pg_temp.ok((select count(*) from profiles where bio = 'hacked') = 0, 'can
 set role authenticated;
 
 -- backfill snapshot + a run
-select ingest_batch('vault-shards', 1, '[
+select ingest_batch('hellvault', 1, '[
   {"idem": "e1", "at": 1700000000000, "type": "snapshot", "payload": {
      "stats": {"kills": 60, "max_shards": 3, "lore_pages": 6, "nope": 1},
      "achievements": {"first_blood": 1700000000000, "pages6": 1700000000000},
-     "best": {"kills_per_run": 40}}},
+     "best": {"arena_kills": 40}}},
   {"idem": "e2", "at": 1700000001000, "type": "session", "payload": {"durationMs": 600000}},
   {"idem": "e3", "at": 1700000001000, "type": "stat", "payload": {"id": "kills", "value": 5}},
-  {"idem": "e4", "at": 1700000001000, "type": "score", "payload": {"lb": "kills_per_run", "value": 99999}},
-  {"idem": "e5", "at": 1700000001000, "type": "score", "payload": {"lb": "kills_per_run", "value": 45}}
+  {"idem": "e4", "at": 1700000001000, "type": "score", "payload": {"lb": "arena_kills", "value": 99999}},
+  {"idem": "e5", "at": 1700000001000, "type": "score", "payload": {"lb": "arena_kills", "value": 45}}
 ]'::jsonb) as r \gset
 \echo :r
 select pg_temp.ok((:'r'::jsonb -> 'stats' ->> 'kills')::numeric = 65, 'snapshot total + run delta = 65');
 select pg_temp.ok(:'r'::jsonb -> 'unlocked' ? 'kills50', 'kills50 unlocked server-side from stats');
 select pg_temp.ok(:'r'::jsonb -> 'unlocked' ? 'pages6', 'rule-based pages6 unlocked from lore_pages stat');
 select pg_temp.ok((select count(*) from jsonb_array_elements(:'r'::jsonb -> 'results') x where x ->> 'status' = 'rejected') = 1, 'out-of-bounds score rejected');
-select pg_temp.ok((select value from leaderboard_best where user_id = auth.uid() and lb_id = 'kills_per_run') = 45, 'best score kept');
+select pg_temp.ok((select value from leaderboard_best where user_id = auth.uid() and lb_id = 'arena_kills') = 45, 'best score kept');
 select pg_temp.ok(:'r'::jsonb -> 'badges' @> '[{"id": "first_game"}, {"id": "first_achievement"}]', 'badges returned in sync response');
 
 -- replay is idempotent; snapshot again does not double count
-select ingest_batch('vault-shards', 1, '[{"idem": "e3", "at": 1700000001000, "type": "stat", "payload": {"id": "kills", "value": 5}},
+select ingest_batch('hellvault', 1, '[{"idem": "e3", "at": 1700000001000, "type": "stat", "payload": {"id": "kills", "value": 5}},
   {"idem": "e6", "at": 1700000002000, "type": "snapshot", "payload": {"stats": {"kills": 65}, "achievements": {}, "best": {}}}]'::jsonb) as r2 \gset
 select pg_temp.ok((:'r2'::jsonb -> 'results' -> 0 ->> 'status') = 'duplicate', 'duplicate idem detected');
 select pg_temp.ok((:'r2'::jsonb -> 'stats' ->> 'kills')::numeric = 65, 'second snapshot does not double count');
 select pg_temp.ok(jsonb_array_length(:'r2'::jsonb -> 'badges') = 0, 'badges are awarded once');
 
 -- 9 more runs -> "10 runs" badge
-select ingest_batch('mini-games', 1, (select jsonb_agg(jsonb_build_object('idem', 'm' || i, 'at', 1700000003000, 'type', 'session', 'payload', '{"durationMs": 1000}'::jsonb)) from generate_series(1, 9) i)) as r3 \gset
+select ingest_batch('mini-old-games', 1, (select jsonb_agg(jsonb_build_object('idem', 'm' || i, 'at', 1700000003000, 'type', 'session', 'payload', '{"durationMs": 1000}'::jsonb)) from generate_series(1, 9) i)) as r3 \gset
 select pg_temp.ok(:'r3'::jsonb -> 'badges' @> '[{"id": "ten_runs"}]', 'ten_runs badge after 10 runs');
 select pg_temp.ok((get_profile('alice') -> 'counts' ->> 'games')::int = 2, 'library counter');
 select ingest_batch('no-such-game', 1, '[]') as r4 \gset
@@ -96,7 +96,7 @@ select pg_temp.ok(:'p'::jsonb ->> 'bio' = '<b>hi</b>', 'bio stored as plain text
 select pg_temp.ok((:'p'::jsonb -> 'counts' ->> 'friends')::int = 1, 'friend counter');
 select pg_temp.ok(:'p'::jsonb -> 'badges' @> '[{"id": "first_friend"}]', 'first_friend badge on accept');
 select pg_temp.ok(jsonb_array_length(:'p'::jsonb -> 'games') = 2 and jsonb_array_length(:'p'::jsonb -> 'activity') > 3, 'games and activity in profile');
-select pg_temp.ok((select count(*) from get_leaderboard('vault-shards', 'kills_per_run')) = 1, 'leaderboard visible to friend');
+select pg_temp.ok((select count(*) from get_leaderboard('hellvault', 'arena_kills')) = 1, 'leaderboard visible to friend');
 select pg_temp.ok(remove_friend('00000000-0000-0000-0000-00000000000a') = 'ok', 'friend removed');
 
 -- anon
@@ -104,9 +104,13 @@ reset role;
 set role anon;
 select set_config('request.jwt.claim.sub', '', false);
 select pg_temp.ok((select count(*) from games) = 2, 'catalog is public');
+select pg_temp.ok((select string_agg(plugin_id, ',' order by plugin_id) from games) = 'good-old-games,vault-shards', 'real plugin ids');
+select pg_temp.ok((select count(*) from games where repo_url like 'https://github.com/NOMBER/%') = 2, 'repo urls set');
+select pg_temp.ok((select count(*) from achievements where game_id = 'mini-old-games') = 67 and (select count(*) from achievements where game_id = 'hellvault') = 21, 'real achievement lists');
+select pg_temp.ok((select count(*) from leaderboards where game_id = 'hellvault' and not retired) = 3, 'hellvault boards incl. arena_wave');
 select pg_temp.ok((get_profile('alice') ->> 'restricted')::boolean, 'anon sees restricted card');
 do $$ begin
-  perform ingest_batch('vault-shards', 1, '[]');
+  perform ingest_batch('hellvault', 1, '[]');
   raise exception 'FAIL: anon can call ingest_batch';
 exception when insufficient_privilege then raise notice 'ok - anon cannot sync'; end $$;
 do $$ begin

@@ -146,7 +146,9 @@ removed stats/boards are marked retired, never deleted).
 
 ## The two existing games
 
-- `examples/minigames/` — Mini Games (12 games): manifest generated from the real game list and its 67 achievement
-  ids, `importTotals` from its `stats.games`, `onSession` hook for `recordSession()`, settings toggle.
-- `examples/shooter/` — Vault Shards (Doom-style shooter): manifest from its real counters and 21 achievements
-  (all server-evaluated stat rules), per-session deltas, fastest-win and kills-per-run boards.
+- `examples/mini-old-games/` — [Mini Old Games](https://github.com/NOMBER/Mini-Old-Games) (plugin id `good-old-games`,
+  12 games): manifest generated from the real game list and its 67 achievement ids, `importTotals` from its
+  `stats.games`, `onSession` hook for `recordSession()`, settings toggle.
+- `examples/hellvault/` — [HELLVAULT](https://github.com/NOMBER/HELLVAULT) (plugin id `vault-shards`, Doom-like shooter
+  with story, linear path and endless arena): manifest from its real `progress.stats` counters and 21 achievements
+  (all server-evaluated stat rules), per-run deltas, arena wave / arena kills / fastest story boards.

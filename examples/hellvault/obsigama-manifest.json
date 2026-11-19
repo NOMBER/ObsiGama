@@ -1,0 +1,390 @@
+{
+  "gameId": "hellvault",
+  "pluginId": "vault-shards",
+  "name": "HELLVAULT",
+  "manifestVersion": 1,
+  "stats": [
+    {
+      "id": "runs",
+      "agg": "count",
+      "name": "Завершённые забеги"
+    },
+    {
+      "id": "playtime_ms",
+      "agg": "sum",
+      "maxDelta": 14400000,
+      "name": "Время в игре"
+    },
+    {
+      "id": "wins",
+      "agg": "sum",
+      "maxDelta": 1,
+      "name": "Пройдена история"
+    },
+    {
+      "id": "linear_wins",
+      "agg": "sum",
+      "maxDelta": 1,
+      "name": "Пройден линейный путь"
+    },
+    {
+      "id": "arena_runs",
+      "agg": "sum",
+      "maxDelta": 1,
+      "name": "Забеги на арене"
+    },
+    {
+      "id": "deaths",
+      "agg": "sum",
+      "maxDelta": 1000,
+      "name": "Смерти"
+    },
+    {
+      "id": "kills",
+      "agg": "sum",
+      "maxDelta": 5000,
+      "name": "Убито врагов"
+    },
+    {
+      "id": "k_quill",
+      "agg": "sum",
+      "maxDelta": 5000,
+      "name": "Убито Пером"
+    },
+    {
+      "id": "k_orphan",
+      "agg": "sum",
+      "maxDelta": 5000,
+      "name": "Убито Сирот"
+    },
+    {
+      "id": "k_glitch",
+      "agg": "sum",
+      "maxDelta": 5000,
+      "name": "Убито Битых ссылок"
+    },
+    {
+      "id": "k_dup",
+      "agg": "sum",
+      "maxDelta": 5000,
+      "name": "Убито Дубликатов"
+    },
+    {
+      "id": "k_copy",
+      "agg": "sum",
+      "maxDelta": 5000,
+      "name": "Убито Копий"
+    },
+    {
+      "id": "k_spam",
+      "agg": "sum",
+      "maxDelta": 5000,
+      "name": "Убито Спам-тегов"
+    },
+    {
+      "id": "best_arena_wave",
+      "agg": "max",
+      "max": 1000,
+      "name": "Лучшая волна арены"
+    },
+    {
+      "id": "lore_pages",
+      "agg": "max",
+      "max": 12,
+      "name": "Страницы дневника"
+    },
+    {
+      "id": "dedup",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "k_boss",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "got_shotgun",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "got_laser",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "nodmg_shard",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "low_hp",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "speed",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "flawless",
+      "agg": "max",
+      "max": 1
+    },
+    {
+      "id": "max_shards",
+      "agg": "max",
+      "max": 7,
+      "name": "Осколков за забег"
+    },
+    {
+      "id": "max_secrets",
+      "agg": "max",
+      "max": 3,
+      "name": "Тайников за забег"
+    },
+    {
+      "id": "max_zones",
+      "agg": "max",
+      "max": 5,
+      "name": "Зон за забег"
+    }
+  ],
+  "leaderboards": [
+    {
+      "id": "arena_wave",
+      "name": "Арена: лучшая волна",
+      "sort": "desc",
+      "min": 0,
+      "max": 1000
+    },
+    {
+      "id": "arena_kills",
+      "name": "Арена: убийств за забег",
+      "sort": "desc",
+      "min": 0,
+      "max": 20000
+    },
+    {
+      "id": "fastest_win_s",
+      "name": "Быстрейшее прохождение истории (сек)",
+      "sort": "asc",
+      "min": 60,
+      "max": 86400
+    }
+  ],
+  "achievements": [
+    {
+      "id": "first_blood",
+      "name": "Первая правка",
+      "description": "Уничтожьте первое порождение Порчи.",
+      "icon": "✏️",
+      "rule": {
+        "stat": "kills",
+        "gte": 1
+      }
+    },
+    {
+      "id": "kills50",
+      "name": "Чистка хранилища",
+      "description": "Уничтожьте 50 врагов (за все забеги).",
+      "icon": "🧹",
+      "rule": {
+        "stat": "kills",
+        "gte": 50
+      }
+    },
+    {
+      "id": "kills150",
+      "name": "Сборщик мусора",
+      "description": "Уничтожьте 150 врагов (за все забеги).",
+      "icon": "♻️",
+      "rule": {
+        "stat": "kills",
+        "gte": 150
+      }
+    },
+    {
+      "id": "quill25",
+      "name": "Перо сильнее меча",
+      "description": "Уничтожьте 25 врагов Пером.",
+      "icon": "🪶",
+      "rule": {
+        "stat": "k_quill",
+        "gte": 25
+      }
+    },
+    {
+      "id": "glitch15",
+      "name": "Починка ссылок",
+      "description": "Уничтожьте 15 Битых ссылок.",
+      "icon": "🔗",
+      "rule": {
+        "stat": "k_glitch",
+        "gte": 15
+      }
+    },
+    {
+      "id": "spam15",
+      "name": "Антиспам",
+      "description": "Уничтожьте 15 Спам-тегов.",
+      "icon": "🚫",
+      "rule": {
+        "stat": "k_spam",
+        "gte": 15
+      }
+    },
+    {
+      "id": "dedup",
+      "name": "Дедупликация",
+      "description": "Уничтожьте обе Копии одного Дубликата.",
+      "icon": "👯",
+      "rule": {
+        "stat": "dedup",
+        "gte": 1
+      }
+    },
+    {
+      "id": "shard1",
+      "name": "Первый осколок",
+      "description": "Подберите осколок обсидиана.",
+      "icon": "💎",
+      "rule": {
+        "stat": "max_shards",
+        "gte": 1
+      }
+    },
+    {
+      "id": "shard7",
+      "name": "Целостность",
+      "description": "Соберите все 7 осколков в одном забеге.",
+      "icon": "🔮",
+      "rule": {
+        "stat": "max_shards",
+        "gte": 7
+      }
+    },
+    {
+      "id": "boss",
+      "name": "Пустота заполнена",
+      "description": "Победите Пустую Заметку.",
+      "icon": "📄",
+      "rule": {
+        "stat": "k_boss",
+        "gte": 1
+      }
+    },
+    {
+      "id": "secret1",
+      "name": "Скрытый файл",
+      "description": "Найдите тайник.",
+      "icon": "🗝️",
+      "rule": {
+        "stat": "max_secrets",
+        "gte": 1
+      }
+    },
+    {
+      "id": "secret3",
+      "name": "Полная индексация",
+      "description": "Найдите все 3 тайника в одном забеге.",
+      "icon": "🔍",
+      "rule": {
+        "stat": "max_secrets",
+        "gte": 3
+      }
+    },
+    {
+      "id": "zones",
+      "name": "Картограф",
+      "description": "Посетите все 5 зон Хранилища.",
+      "icon": "🗺️",
+      "rule": {
+        "stat": "max_zones",
+        "gte": 5
+      }
+    },
+    {
+      "id": "shotgun",
+      "name": "[[Двойные скобки]]",
+      "description": "Найдите Wikilink-дробовик.",
+      "icon": "[[",
+      "rule": {
+        "stat": "got_shotgun",
+        "gte": 1
+      }
+    },
+    {
+      "id": "laser",
+      "name": "Связанный",
+      "description": "Найдите Граф-лазер.",
+      "icon": "⚡",
+      "rule": {
+        "stat": "got_laser",
+        "gte": 1
+      }
+    },
+    {
+      "id": "pages6",
+      "name": "Летописец",
+      "description": "Найдите 6 страниц дневника.",
+      "icon": "📜",
+      "rule": {
+        "stat": "lore_pages",
+        "gte": 6
+      }
+    },
+    {
+      "id": "pages12",
+      "name": "Хранитель памяти",
+      "description": "Найдите все 12 страниц дневника.",
+      "icon": "📚",
+      "rule": {
+        "stat": "lore_pages",
+        "gte": 12
+      }
+    },
+    {
+      "id": "nodmg",
+      "name": "Без единой правки",
+      "description": "Подберите осколок, не получив урона с момента входа в зону.",
+      "icon": "🛡️",
+      "rule": {
+        "stat": "nodmg_shard",
+        "gte": 1
+      }
+    },
+    {
+      "id": "lowhp",
+      "name": "На волоске",
+      "description": "Опуститесь до 10 HP или ниже и вылечитесь.",
+      "icon": "💔",
+      "rule": {
+        "stat": "low_hp",
+        "gte": 1
+      }
+    },
+    {
+      "id": "speed",
+      "name": "Быстрый поиск",
+      "description": "Пройдите игру быстрее чем за 20 минут.",
+      "icon": "⏱️",
+      "rule": {
+        "stat": "speed",
+        "gte": 1
+      }
+    },
+    {
+      "id": "flawless",
+      "name": "Без резервных копий",
+      "description": "Пройдите игру, ни разу не погибнув.",
+      "icon": "⭐",
+      "rule": {
+        "stat": "flawless",
+        "gte": 1
+      }
+    }
+  ]
+}

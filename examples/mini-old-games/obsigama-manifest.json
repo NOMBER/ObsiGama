@@ -1,7 +1,7 @@
 {
-  "gameId": "mini-games",
-  "pluginId": "mini-games",
-  "name": "Mini Games",
+  "gameId": "mini-old-games",
+  "pluginId": "good-old-games",
+  "name": "Mini Old Games",
   "manifestVersion": 1,
   "stats": [
     {
@@ -18,7 +18,8 @@
     {
       "id": "wins",
       "agg": "sum",
-      "maxDelta": 1
+      "maxDelta": 1,
+      "name": "Wins (all)"
     },
     {
       "id": "snake.runs",
@@ -216,73 +217,73 @@
   "leaderboards": [
     {
       "id": "snake",
-      "name": "Snake",
+      "name": "Snake: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "tetris",
-      "name": "Tetris",
+      "name": "Tetris: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "2048",
-      "name": "2048",
+      "name": "2048: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "minesweeper",
-      "name": "Minesweeper",
+      "name": "Minesweeper: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "flappy",
-      "name": "Flappy Bird",
+      "name": "Flappy Bird: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "breakout",
-      "name": "Breakout",
+      "name": "Breakout: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "pong",
-      "name": "Pong",
+      "name": "Pong: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "whack",
-      "name": "Whack-a-Mole",
+      "name": "Whack-a-Mole: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "memory",
-      "name": "Memory",
+      "name": "Memory: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "invaders",
-      "name": "Space Invaders",
+      "name": "Space Invaders: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "sudoku",
-      "name": "Sudoku",
+      "name": "Sudoku: best score",
       "sort": "desc",
       "min": 0
     },
     {
       "id": "simon",
-      "name": "Simon",
+      "name": "Simon: best score",
       "sort": "desc",
       "min": 0
     }

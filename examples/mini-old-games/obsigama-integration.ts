@@ -1,4 +1,4 @@
-// How the Mini Games plugin (12 games, CommonJS, stats in data.json) connects to OBSIGAMA.
+// How Mini Old Games (plugin id "good-old-games", 12 games, CommonJS, stats in data.json) connects to OBSIGAMA.
 // Based on the real structure of the plugin: main.js -> recordSession(id, r) and engine.onSession().
 // The plugin is plain JS; the same calls work from JS (drop the types).
 //
@@ -12,7 +12,7 @@ import manifestJson from "./obsigama-manifest.json";
 
 const manifest = manifestJson as GameManifest;
 
-/** Shapes from mini-games src/core/stats.js (only the fields we use). */
+/** Shapes from Mini-Old-Games src/core/stats.js (only the fields we use). */
 interface GameStats { played: number; best: number; wins: number; totalTime: number }
 interface MiniGamesStats { games: Record<string, GameStats>; ach: Record<string, number> }
 /** r = { score, ms, win, diff, extra } from host.js */
@@ -60,7 +60,7 @@ export class MiniGamesS {
       durationMs: ms,
       stats: { runs: 1, playtime_ms: ms, wins: win, [`${gameId}.runs`]: 1, [`${gameId}.best`]: score, [`${gameId}.wins`]: win },
       scores: score > 0 ? { [gameId]: score } : {},
-      achievements: freshAchievementIds, // mini-games achievements are claim-type in the manifest
+      achievements: freshAchievementIds, // Mini Old Games achievements are claim-type in the manifest
     });
   }
 }

@@ -27,7 +27,7 @@ playable offline. A game that opts in (its own **Connect to OBSIGAMA** toggle, o
 | `src/platform-api.ts` | In-process API that game plugins call through the SDK, consent dialog |
 | `src/image/` | Any image → small WebP (resize, center-crop, quality search) |
 | `packages/sdk/` | Dependency-free SDK for game plugins (offline-first state, queue, sync, settings toggle) |
-| `examples/minigames`, `examples/shooter` | Ready integration code + manifests for the two existing games |
+| `examples/mini-old-games`, `examples/hellvault` | Ready integration code + manifests for the two existing games ([Mini Old Games](https://github.com/NOMBER/Mini-Old-Games), [HELLVAULT](https://github.com/NOMBER/HELLVAULT)) |
 | `supabase/migrations/` | Database schema, RLS, RPCs, triggers, storage buckets, seed (badges + 2 games) |
 | `supabase/tests/` | SQL smoke tests (run on plain Postgres with a Supabase stub) |
 | `scripts/manifest-to-sql.mjs` | Registers a game: manifest JSON → SQL |
