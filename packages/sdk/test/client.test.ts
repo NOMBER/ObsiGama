@@ -88,6 +88,25 @@ describe("SClient", () => {
     expect(c.getStatus().pending).toBe(0);
   });
 
+  it("offline runs: capped deltas are never merged past maxDelta (2 offline wins = 2)", async () => {
+    const p = fakePlatform();
+    const capped = { ...M, stats: [...M.stats!, { id: "wins", agg: "sum" as const, maxDelta: 1 }] };
+    const c = await SClient.create({ plugin, manifest: capped, storage: memoryStorage(), platform: () => p.api, ...noTimers, log: () => {} });
+    await c.setConnect(true);
+    p.set({ enabled: false }); // offline: everything stays queued and unsent
+    await c.endRun({ stats: { wins: 1, kills: 60 } });
+    await c.endRun({ stats: { wins: 1, kills: 30 } });
+    await c.endRun({ stats: { wins: 1, kills: 50 } });
+    p.set({ enabled: true });
+    await vi.waitFor(() => expect(c.getStatus().pending).toBe(0));
+    const stats = p.sent.flatMap((r) => r.events).filter((e) => e.type === "stat") as { payload: { id: string; value: number } }[];
+    const winEvents = stats.filter((e) => e.payload.id === "wins").map((e) => e.payload.value);
+    const killEvents = stats.filter((e) => e.payload.id === "kills").map((e) => e.payload.value);
+    expect(winEvents).toEqual([1, 1, 1]);
+    expect(killEvents.every((v) => v <= 100)).toBe(true); // kills maxDelta 100: 60+30 merged, 50 separate
+    expect(killEvents.reduce((a, b) => a + b, 0)).toBe(140);
+  });
+
   it("never pops the consent dialog by itself after a run", async () => {
     const p = fakePlatform();
     const c = await SClient.create({ plugin, manifest: M, storage: memoryStorage(), platform: () => p.api, ...noTimers, log: () => {} });

@@ -8,7 +8,7 @@ import {
   PLATFORM_PLUGIN_ID, PLATFORM_READY_EVENT, PLATFORM_UNLOAD_EVENT, PROTOCOL_VERSION,
   type AwardedBadge, type EventResult, type PlatformAPI, type PlatformStatus, type StatValue, type SyncEvent,
 } from "./protocol";
-import { applyResults, backoffMs, compact, enqueue, newIdem, replaceWithSnapshot, takeBatch } from "./queue";
+import { applyResults, backoffMs, compact, enqueue, newIdem, replaceWithSnapshot, SERVER_DEFAULT_MAX_DELTA, takeBatch } from "./queue";
 import {
   applyAchievement, applyScore, applyStat, evaluateRules, normalizeState, snapshotPayload,
   type LocalState,
@@ -312,7 +312,7 @@ export class SClient {
       this.state.queue = replaceWithSnapshot(this.state.queue, { idem: newIdem(at), at, type: "snapshot", payload: snapshotPayload(this.state) });
       this.state.snapshotFor = ps.userId;
     }
-    this.state.queue = compact(this.state.queue, (id) => isSum(findStat(this.manifest, id)));
+    this.state.queue = compact(this.state.queue, (id) => mergeCap(findStat(this.manifest, id)));
     if (!this.state.queue.length) { await this.persist(); return; }
 
     this.busy = true;
@@ -463,8 +463,11 @@ export class SClient {
   }
 }
 
-function isSum(d: StatDef | undefined): boolean {
-  return !!d && (d.agg === "sum" || d.agg === "count");
+/** How far unsent deltas of a stat may be merged: never past the per-event cap the server applies. */
+function mergeCap(d: StatDef | undefined): number | false {
+  if (!d || (d.agg !== "sum" && d.agg !== "count")) return false;
+  const cap = d.maxDelta ?? SERVER_DEFAULT_MAX_DELTA;
+  return Number.isFinite(cap) && cap > 0 ? cap : false;
 }
 function safe<T>(fn: () => T): T | undefined {
   try { return fn(); } catch { return undefined; }

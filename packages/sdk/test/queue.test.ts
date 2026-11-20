@@ -22,6 +22,18 @@ describe("queue", () => {
     expect(out.map((e) => e.idem)).toEqual(["1", "2", "3"]);
     expect((out[1] as Extract<SyncEvent, { type: "stat" }>).payload.value).toBe(7);
   });
+  it("never merges deltas past the per-event cap (offline wins are not lost)", () => {
+    const val = (e: SyncEvent) => (e as Extract<SyncEvent, { type: "stat" }>).payload.value;
+    // wins: maxDelta 1 -> two offline wins stay two events
+    const wins = compact([stat("1", "wins", 1), stat("2", "wins", 1), stat("3", "wins", 1)], () => 1);
+    expect(wins.map(val)).toEqual([1, 1, 1]);
+    // playtime: cap 10 -> packed greedily, never above the cap
+    const pt = compact([stat("1", "pt", 4), stat("2", "pt", 5), stat("3", "pt", 3), stat("4", "pt", 12), stat("5", "pt", 2)], () => 10);
+    expect(pt.map(val)).toEqual([9, 3, 12, 2]);
+    expect(pt.map(val).reduce((a, b) => a + b)).toBe(26);
+    // not mergeable at all
+    expect(compact([stat("1", "x", 1), stat("2", "x", 1)], () => false)).toHaveLength(2);
+  });
   it("snapshot replaces unsent events but keeps sent ones", () => {
     const snap: SyncEvent = { idem: "s", at: 1, type: "snapshot", payload: { stats: {}, achievements: {}, best: {} } };
     const out = replaceWithSnapshot([stat("1", "k", 1, true), stat("2", "k", 1)], snap);

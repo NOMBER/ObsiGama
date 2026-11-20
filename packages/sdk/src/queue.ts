@@ -33,22 +33,37 @@ export function replaceWithSnapshot(q: SyncEvent[], snap: SyncEvent): SyncEvent[
   return [snap, ...q.filter((e) => e.sent && e.type !== "snapshot")];
 }
 
+/** Per-event cap the server applies to sum/count deltas when a stat declares no maxDelta. */
+export const SERVER_DEFAULT_MAX_DELTA = 1_000_000;
+
 /**
- * Merges never-sent sum/count deltas of the same stat into one event to keep requests small.
- * Only unsent events are merged, so an event whose response got lost is never re-sent under a new key.
+ * Merges never-sent sum/count deltas of the same stat to keep requests small.
+ * `mergeCap(id)` returns `false` for stats that must not be merged, or the largest value one event may carry:
+ * the server clamps every delta event to the stat's `maxDelta`, so merged events never grow beyond it
+ * (two offline wins with maxDelta 1 stay two events; short runs' playtime is packed up to the cap).
+ * `true` means "no cap" (merge freely). Only unsent events are merged, so an event whose response got lost
+ * is never re-sent under a new key.
  */
-export function compact(q: SyncEvent[], isSumStat: (id: string) => boolean): SyncEvent[] {
+export function compact(q: SyncEvent[], mergeCap: (id: string) => number | boolean): SyncEvent[] {
   const out: SyncEvent[] = [];
-  const open = new Map<string, number>(); // stat id -> index in out of an unsent delta event
+  const open = new Map<string, number>(); // stat id -> index in out of an unsent delta event that can still grow
   for (const e of q) {
-    if (!e.sent && e.type === "stat" && typeof e.payload.value === "number" && isSumStat(e.payload.id)) {
-      const i = open.get(e.payload.id);
-      if (i != null) {
-        const prev = out[i] as Extract<SyncEvent, { type: "stat" }>;
-        out[i] = { ...prev, at: e.at, payload: { id: prev.payload.id, value: (prev.payload.value as number) + e.payload.value } };
-        continue;
+    if (!e.sent && e.type === "stat" && typeof e.payload.value === "number") {
+      const c = mergeCap(e.payload.id);
+      const cap = c === true ? Infinity : c === false ? 0 : c;
+      if (cap > 0) {
+        const i = open.get(e.payload.id);
+        if (i != null) {
+          const prev = out[i] as Extract<SyncEvent, { type: "stat" }>;
+          const sum = (prev.payload.value as number) + e.payload.value;
+          if (sum <= cap) {
+            out[i] = { ...prev, at: e.at, payload: { id: prev.payload.id, value: sum } };
+            continue;
+          }
+        }
+        if (e.payload.value < cap) open.set(e.payload.id, out.length);
+        else open.delete(e.payload.id);
       }
-      open.set(e.payload.id, out.length);
     }
     out.push(e);
   }

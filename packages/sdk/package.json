@@ -1,6 +1,6 @@
 {
   "name": "@obsigama/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Dependency-free SDK that lets an Obsidian game plugin keep local stats/achievements/best scores and optionally sync them to the OBSIGAMA game hub.",
   "license": "MIT",
   "type": "module",

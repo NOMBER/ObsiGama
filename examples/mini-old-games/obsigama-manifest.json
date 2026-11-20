@@ -2,7 +2,7 @@
   "gameId": "mini-old-games",
   "pluginId": "good-old-games",
   "name": "Mini Old Games",
-  "manifestVersion": 1,
+  "manifestVersion": 2,
   "stats": [
     {
       "id": "runs",
@@ -77,7 +77,8 @@
     {
       "id": "minesweeper.best",
       "agg": "max",
-      "name": "Minesweeper: best score"
+      "name": "Minesweeper: best score",
+      "max": 381
     },
     {
       "id": "minesweeper.wins",
@@ -125,7 +126,8 @@
     {
       "id": "pong.best",
       "agg": "max",
-      "name": "Pong: best score"
+      "name": "Pong: best score",
+      "max": 7
     },
     {
       "id": "pong.wins",
@@ -157,7 +159,8 @@
     {
       "id": "memory.best",
       "agg": "max",
-      "name": "Memory: best score"
+      "name": "Memory: best score",
+      "max": 280
     },
     {
       "id": "memory.wins",
@@ -189,7 +192,8 @@
     {
       "id": "sudoku.best",
       "agg": "max",
-      "name": "Sudoku: best score"
+      "name": "Sudoku: best score",
+      "max": 3000
     },
     {
       "id": "sudoku.wins",
@@ -237,7 +241,8 @@
       "id": "minesweeper",
       "name": "Minesweeper: best score",
       "sort": "desc",
-      "min": 0
+      "min": 0,
+      "max": 381
     },
     {
       "id": "flappy",
@@ -255,7 +260,8 @@
       "id": "pong",
       "name": "Pong: best score",
       "sort": "desc",
-      "min": 0
+      "min": 0,
+      "max": 7
     },
     {
       "id": "whack",
@@ -267,7 +273,8 @@
       "id": "memory",
       "name": "Memory: best score",
       "sort": "desc",
-      "min": 0
+      "min": 0,
+      "max": 280
     },
     {
       "id": "invaders",
@@ -279,7 +286,8 @@
       "id": "sudoku",
       "name": "Sudoku: best score",
       "sort": "desc",
-      "min": 0
+      "min": 0,
+      "max": 3000
     },
     {
       "id": "simon",

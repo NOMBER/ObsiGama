@@ -74,6 +74,34 @@ select pg_temp.ok(jsonb_array_length(:'r2'::jsonb -> 'badges') = 0, 'badges are 
 select ingest_batch('mini-old-games', 1, (select jsonb_agg(jsonb_build_object('idem', 'm' || i, 'at', 1700000003000, 'type', 'session', 'payload', '{"durationMs": 1000}'::jsonb)) from generate_series(1, 9) i)) as r3 \gset
 select pg_temp.ok(:'r3'::jsonb -> 'badges' @> '[{"id": "ten_runs"}]', 'ten_runs badge after 10 runs');
 select pg_temp.ok((get_profile('alice') -> 'counts' ->> 'games')::int = 2, 'library counter');
+-- per-run caps (maxDelta): separate delta events count separately, a merged one is clamped
+-- (sdk-v0.1.1 never merges past maxDelta; sdk-v0.1.0 merged offline wins into one event and lost them)
+select coalesce((select value from user_stats where user_id = auth.uid() and game_id = 'mini-old-games' and stat_id = 'wins'), 0) as w0 \gset
+select ingest_batch('mini-old-games', 1, '[
+  {"idem": "w1", "at": 1700000004000, "type": "session", "payload": {"durationMs": 1000}},
+  {"idem": "w2", "at": 1700000004000, "type": "stat", "payload": {"id": "wins", "value": 1}},
+  {"idem": "w3", "at": 1700000005000, "type": "session", "payload": {"durationMs": 1000}},
+  {"idem": "w4", "at": 1700000005000, "type": "stat", "payload": {"id": "wins", "value": 1}},
+  {"idem": "w5", "at": 1700000005000, "type": "stat", "payload": {"id": "pong.wins", "value": 1}},
+  {"idem": "w6", "at": 1700000005000, "type": "stat", "payload": {"id": "pong.wins", "value": 1}}]'::jsonb) as rw \gset
+select pg_temp.ok((:'rw'::jsonb -> 'stats' ->> 'wins')::numeric = :w0 + 2, 'two offline wins sent as two events count as 2');
+select pg_temp.ok((:'rw'::jsonb -> 'stats' ->> 'pong.wins')::numeric = 2, 'per-game wins: two events count as 2');
+select ingest_batch('mini-old-games', 1, '[{"idem": "w7", "at": 1700000006000, "type": "stat", "payload": {"id": "wins", "value": 2}}]'::jsonb) as rw2 \gset
+select pg_temp.ok((:'rw2'::jsonb -> 'stats' ->> 'wins')::numeric = :w0 + 3, 'one merged event is still clamped to maxDelta');
+select ingest_batch('mini-old-games', 1, '[{"idem": "pt1", "at": 1700000006000, "type": "stat", "payload": {"id": "playtime_ms", "value": 14400000}},
+  {"idem": "pt2", "at": 1700000006000, "type": "stat", "payload": {"id": "playtime_ms", "value": 3600000}}]'::jsonb) as rw3 \gset
+select pg_temp.ok((:'rw3'::jsonb -> 'stats' ->> 'playtime_ms')::numeric >= 18000000, 'playtime packed up to the cap is not lost');
+
+-- manifest v2 score caps
+select pg_temp.ok((select max(version) from game_manifests where game_id = 'mini-old-games') = 2, 'mini-old-games manifest v2 applied');
+select ingest_batch('mini-old-games', 1, '[{"idem": "c1", "at": 1700000007000, "type": "score", "payload": {"lb": "pong", "value": 8}},
+  {"idem": "c2", "at": 1700000007000, "type": "score", "payload": {"lb": "pong", "value": 7}},
+  {"idem": "c3", "at": 1700000007000, "type": "stat", "payload": {"id": "pong.best", "value": 9}},
+  {"idem": "c4", "at": 1700000007000, "type": "score", "payload": {"lb": "memory", "value": 281}},
+  {"idem": "c5", "at": 1700000007000, "type": "score", "payload": {"lb": "snake", "value": 99999}}]'::jsonb) as rc \gset
+select pg_temp.ok((select array_agg(x ->> 'status' order by x ->> 'idem') from jsonb_array_elements(:'rc'::jsonb -> 'results') x)
+  = array['rejected', 'accepted', 'accepted', 'rejected', 'accepted'], 'pong 8 / memory 281 rejected, uncapped snake accepted');
+select pg_temp.ok((:'rc'::jsonb -> 'stats' ->> 'pong.best')::numeric = 7, 'pong.best clamped to 7');
 select ingest_batch('no-such-game', 1, '[]') as r4 \gset
 select pg_temp.ok(:'r4'::jsonb ->> 'error' = 'unknown-game', 'unknown game rejected');
 

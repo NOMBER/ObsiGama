@@ -35,6 +35,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
-    "@obsigama/sdk": "0.1.0"
+    "@obsigama/sdk": "0.1.1"
   }
 }
