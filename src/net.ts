@@ -1,12 +1,13 @@
 // Network guard + optional Obsidian requestUrl transport for supabase-js.
 import { requestUrl } from "obsidian";
+import { PLATFORM_NAME } from "./brand";
 
 export class OfflineError extends Error {
-  constructor() { super("OBSIGAMA is offline: the Online / sync switch is off"); }
+  constructor() { super(`${PLATFORM_NAME} is offline: the Online / sync switch is off`); }
 }
 
 /**
- * fetch() that refuses to touch the network when OBSIGAMA is switched off, and optionally sends requests
+ * fetch() that refuses to touch the network when GAMA Hub is switched off, and optionally sends requests
  * through Obsidian's requestUrl (not subject to browser CORS). Supabase allows any origin, so the
  * normal fetch works; requestUrl is a fallback for networks/proxies that break CORS.
  */

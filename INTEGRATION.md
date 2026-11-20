@@ -1,14 +1,14 @@
-# Connecting a game plugin to OBSIGAMA
+# Connecting a game plugin to GAMA Hub
 
 Your game stays a normal, fully offline Obsidian plugin. The SDK adds:
 
 - **local progress** kept by the SDK itself (stats, best scores, achievements) in `obsigama-sync.json` next to your
-  `data.json`; works with or without OBSIGAMA installed, never throws;
-- an opt-in **"Connect to OBSIGAMA"** toggle for your settings tab (off by default) with a live sync status line;
+  `data.json`; works with or without GAMA Hub installed, never throws;
+- an opt-in **"Connect to GAMA Hub"** toggle for your settings tab (off by default) with a live sync status line;
 - after **every finished run**, one small request with that run's results (only when connected);
 - an offline **queue** with idempotency keys, backfill of everything earned before connecting, and retries.
 
-Accounts exist only in OBSIGAMA. Your game never sees a password, token or Supabase key.
+Accounts exist only in GAMA Hub. Your game never sees a password, token or Supabase key.
 
 ## 1. Add the SDK
 
@@ -19,7 +19,7 @@ into your plugin (e.g. `src/s-sdk/`) or add the package from git, and let esbuil
 
 ```json
 {
-  "gameId": "my-game",            // [a-z0-9-]{3,40}, unique on OBSIGAMA, never change it
+  "gameId": "my-game",            // [a-z0-9-]{3,40}, unique on GAMA Hub, never change it
   "pluginId": "my-game",          // your Obsidian plugin id
   "name": "My Game",
   "manifestVersion": 1,           // bump when you add things; old versions keep working
@@ -75,7 +75,7 @@ export default class MyGame extends Plugin {
     // ...load your own data first...
     this.s = await SClient.create({ plugin: this, manifest });          // never throws
     this.s.importTotals({ stats: { kills: this.data.kills }, best: { score: this.data.best } }); // optional, idempotent
-    this.s.on("badge", (b) => new Notice(`OBSIGAMA badge: ${b.name}`));        // optional toasts
+    this.s.on("badge", (b) => new Notice(`GAMA Hub badge: ${b.name}`));        // optional toasts
     this.s.on("achievement", (a) => { /* a.source: "local" | "server" */ });
     this.addSettingTab(new MySettings(this));
   }
@@ -103,9 +103,9 @@ class MySettings extends PluginSettingTab {
 }
 ```
 
-`endRun()` updates local progress, evaluates local achievements, and if **Connect to OBSIGAMA** is on, sends this run in one
-request right away. If OBSIGAMA is missing, switched offline, signed out, or the network fails, the run stays queued and
-goes out with the next run or as soon as OBSIGAMA reports it is back (no polling). Failed requests also retry with backoff
+`endRun()` updates local progress, evaluates local achievements, and if **Connect to GAMA Hub** is on, sends this run in one
+request right away. If GAMA Hub is missing, switched offline, signed out, or the network fails, the run stays queued and
+goes out with the next run or as soon as GAMA Hub reports it is back (no polling). Failed requests also retry with backoff
 (30 s → 30 min).
 
 Other calls: `reportStat(id, value)`, `submitScore(lb, value)`, `unlockAchievement(id)` (go out with the next sync),
@@ -115,15 +115,15 @@ Other calls: `reportStat(id, value)`, `submitScore(lb, value)`, `unlockAchieveme
 ## 4. What the player sees
 
 1. Plays offline as always. Nothing is sent.
-2. Turns on **Connect to OBSIGAMA** in your settings. If OBSIGAMA isn't installed: the status line says so, progress stays local.
-3. With OBSIGAMA installed and signed in, OBSIGAMA asks once: *"Connect My Game to OBSIGAMA?"* → **Allow**.
+2. Turns on **Connect to GAMA Hub** in your settings. If GAMA Hub isn't installed: the status line says so, progress stays local.
+3. With GAMA Hub installed and signed in, GAMA Hub asks once: *"Connect My Game to GAMA Hub?"* → **Allow**.
 4. The SDK sends one snapshot with everything earned so far (backfill), then one request per finished run.
-5. The game shows up in their OBSIGAMA library and public profile; OBSIGAMA badges may pop up as toasts.
+5. The game shows up in their GAMA Hub library and public profile; GAMA Hub badges may pop up as toasts.
 
-Status values: `off`, `no-platform`, `platform-disabled` (OBSIGAMA switched offline), `not-configured`, `signed-out`,
+Status values: `off`, `no-platform`, `platform-disabled` (GAMA Hub switched offline), `not-configured`, `signed-out`,
 `needs-link`, `link-denied`, `syncing`, `pending`, `synced`, `error`.
 
-## 5. Submit the game to OBSIGAMA
+## 5. Submit the game to GAMA Hub
 
 You don't run any SQL and never get server keys. Open an issue with the
 [Add a game / Добавить игру](https://github.com/NOMBER/ObsiGama/issues/new?template=add-game.yml) template: game name,
@@ -132,7 +132,7 @@ validates the manifest, reviews the code, play-tests the game by hand and then r
 reviewed manually and can be rejected or delisted; the rules are in the README
 ([Add your game](README.md#add-your-game--как-добавить-свою-игру-в-obsigama)).
 
-Until your game is approved, the sync status says "This game is not registered on OBSIGAMA yet" and the SDK keeps
+Until your game is approved, the sync status says "This game is not registered on GAMA Hub yet" and the SDK keeps
 everything in its local queue; nothing is lost, it syncs after approval.
 
 To change the manifest later, bump `manifestVersion` (additive changes only: removed stats/boards are marked retired,
@@ -142,7 +142,7 @@ never deleted) and submit it again.
 
 - Discovery: `app.plugins.getPlugin("obsigama")?.api` (undocumented Obsidian API, guarded) plus the workspace
   events `obsigama:ready` / `obsigama:unload`, so load order doesn't matter.
-- The SDK hands batches to OBSIGAMA (`api.submit`). OBSIGAMA checks its master switch, the session and the player's consent for
+- The SDK hands batches to GAMA Hub (`api.submit`). GAMA Hub checks its master switch, the session and the player's consent for
   this game, then calls the `ingest_batch` Postgres function with the player's JWT.
 - `ingest_batch` (SECURITY DEFINER): dedups by `(user, idem)`, rate-limits (1,000 events / 10 min), clamps
   stats per the registered manifest, rejects out-of-bounds scores, records runs, unlocks stat-rule achievements,

@@ -2,6 +2,7 @@
 import { createClient, type Session, type SupabaseClient } from "@supabase/supabase-js";
 import type { App } from "obsidian";
 import { makeFetch, OfflineError } from "./net";
+import { PLATFORM_NAME } from "./brand";
 import { isSecretKey, serverOf } from "./server";
 import type { SSettings } from "./settings";
 import { AVATAR_WEBP, toWebp } from "./image/webp";
@@ -115,7 +116,7 @@ export class Backend {
         this.session = sd.session;
         if (this.session) await this.loadUsername();
       } catch (e) {
-        console.warn("[OBSIGAMA] session restore failed", e);
+        console.warn("[GAMA Hub] session restore failed", e);
       }
     }
     this.emit();
@@ -160,7 +161,7 @@ export class Backend {
   /** The client, or an error explaining why there is none. */
   sb(): SupabaseClient {
     if (!this.settings().online) throw new OfflineError();
-    if (!this.client) throw new Error("Server is not configured. Check the custom server fields in ObsiGama settings.");
+    if (!this.client) throw new Error(`Server is not configured. Check the custom server fields in ${PLATFORM_NAME} settings.`);
     return this.client;
   }
 

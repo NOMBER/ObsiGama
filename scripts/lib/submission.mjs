@@ -16,10 +16,10 @@ export const FIELDS = {
 
 /** Required checkboxes: key -> distinctive English text from the template. */
 export const RULES = {
-  offline: "plays fully offline and without OBSIGAMA",
+  offline: "plays fully offline and without GAMA Hub",
   optIn: "toggle is opt-in and OFF by default",
   noSecrets: "no Supabase keys or other secrets",
-  officialSdk: "official OBSIGAMA SDK unmodified",
+  officialSdk: "official GAMA Hub SDK unmodified",
   disclosure: "README discloses network use",
   noTelemetry: "No telemetry and no ads",
   mayReject: "may reject the game or remove it",
@@ -248,14 +248,14 @@ Code review
 - [ ] manifest.json "id" in the repo equals pluginId; the plugin is not a copy of another game
 - [ ] SDK folder is the official one, unmodified (diff against packages/sdk/src at the tag they name)
 - [ ] No Supabase URL/keys, tokens or other secrets; no own fetch/requestUrl/WebSocket calls, no telemetry or ads
-- [ ] "Connect to OBSIGAMA" uses addConnectSetting and is OFF by default
+- [ ] "Connect to GAMA Hub" uses addConnectSetting and is OFF by default
 - [ ] endRun is called once per finished run; claim achievements are only sent when really earned
 - [ ] README has the network-use disclosure (Obsidian developer policies)
 - [ ] Leaderboard bounds and maxDelta values are plausible for this game
 
 Manual QA in a clean test vault
-- [ ] Install the plugin WITHOUT OBSIGAMA: it loads, plays, saves; no console errors
-- [ ] Install OBSIGAMA, switch it offline: the game still plays; the status shows queued events
+- [ ] Install the plugin WITHOUT GAMA Hub: it loads, plays, saves; no console errors
+- [ ] Install GAMA Hub, switch it offline: the game still plays; the status shows queued events
 - [ ] Sign in to a test account, turn the toggle on: consent dialog appears; backfill arrives
 - [ ] Finish a run: one request; stats / best score / achievements appear in the test profile
 - [ ] Go offline, play 2 runs, go online: queued results arrive once, no duplicates

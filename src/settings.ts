@@ -10,9 +10,9 @@ export interface LinkedGame {
 }
 
 export interface SSettings {
-  /** master switch: false = OBSIGAMA makes no network requests at all */
+  /** master switch: false = GAMA Hub makes no network requests at all */
   online: boolean;
-  /** custom server (advanced); empty = the official ObsiGama server */
+  /** custom server (advanced); empty = the official GAMA Hub server */
   supabaseUrl: string;
   supabaseAnonKey: string;
   useRequestUrl: boolean;
