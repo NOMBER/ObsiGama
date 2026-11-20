@@ -1,6 +1,6 @@
 import esbuild from "esbuild";
 import process from "process";
-import builtins from "builtin-modules";
+import { builtinModules } from "node:module";
 
 const prod = process.argv[2] === "production";
 
@@ -12,7 +12,7 @@ const ctx = await esbuild.context({
     "@codemirror/autocomplete", "@codemirror/collab", "@codemirror/commands", "@codemirror/language",
     "@codemirror/lint", "@codemirror/search", "@codemirror/state", "@codemirror/view",
     "@lezer/common", "@lezer/highlight", "@lezer/lr",
-    ...builtins,
+    ...builtinModules, ...builtinModules.map((m) => `node:${m}`),
   ],
   alias: { "@obsigama/sdk": "./packages/sdk/src/index.ts" },
   // supabase-js: use the browser build, never Node built-ins (the plugin must run on mobile)

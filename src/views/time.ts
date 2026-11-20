@@ -1,6 +1,8 @@
-// Localized dates without moment: uses Obsidian's UI language when set.
+// Localized dates without moment: uses Obsidian's UI language.
+import { getLanguage } from "obsidian";
+
 function locale(): string | undefined {
-  try { return window.localStorage.getItem("language") || undefined; } catch { return undefined; }
+  try { return getLanguage() || undefined; } catch { return undefined; }
 }
 
 /** e.g. "11 November 2026" / "11 ноября 2026 г." */

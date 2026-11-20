@@ -231,7 +231,7 @@ export class HubView extends ItemView {
     let timer: number | null = null;
     input.oninput = () => {
       if (timer) window.clearTimeout(timer);
-      timer = window.setTimeout(async () => {
+      timer = window.setTimeout(() => void (async () => {
         results.empty();
         const q = input.value.trim();
         if (q.length < 2) return;
@@ -249,7 +249,7 @@ export class HubView extends ItemView {
             }
           }
         } catch (e) { results.createDiv({ cls: "s-error", text: (e as Error).message }); }
-      }, 300);
+      })(), 300);
     };
 
     const list = await this.cached("friends", () => this.plugin.backend.friends());
@@ -452,7 +452,7 @@ function fmtDuration(ms: number): string {
 function progress(parent: HTMLElement, n: number, total: number): void {
   if (!total) return;
   const wrap = parent.createDiv({ cls: "s-progress", attr: { title: `${n} of ${total} achievements` } });
-  wrap.createDiv({ cls: "s-progress-bar" }).style.width = `${Math.min(100, Math.round((n / total) * 100))}%`;
+  wrap.createDiv({ cls: "s-progress-bar" }).setCssProps({ "--s-progress": `${Math.min(100, Math.round((n / total) * 100))}%` });
   parent.createDiv({ cls: "s-muted", text: `Achievements ${n}/${total}` });
 }
 
@@ -470,8 +470,12 @@ function activityText(a: NonNullable<Profile["activity"]>[number]): string {
     case "first_play": return `Started playing ${a.game_id}`;
     case "achievement": return `🏆 ${name}${a.game_id ? ` (${a.game_id})` : ""}`;
     case "badge": return `🎖 Badge: ${name}`;
-    case "new_best": return `New best in ${a.game_id}: ${String(a.payload?.value ?? "")}${name ? ` (${name})` : ""}`;
+    case "new_best": return `New best in ${a.game_id}: ${fmtValue(a.payload?.value)}${name ? ` (${name})` : ""}`;
     case "friend": return `Became friends with @${a.friend ?? "someone"}`;
     default: return a.kind;
   }
+}
+
+function fmtValue(v: unknown): string {
+  return typeof v === "number" || typeof v === "string" ? String(v) : "";
 }

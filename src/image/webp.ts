@@ -52,7 +52,7 @@ async function decode(file: Blob): Promise<{ img: CanvasImageSource; w: number; 
 
 function makeCanvas(w: number, h: number): AnyCanvas {
   if (typeof OffscreenCanvas !== "undefined") return new OffscreenCanvas(w, h);
-  const c = document.createElement("canvas");
+  const c = createEl("canvas");
   c.width = w; c.height = h;
   return c;
 }
@@ -60,7 +60,7 @@ function makeCanvas(w: number, h: number): AnyCanvas {
 function encode(canvas: AnyCanvas, quality: number): Promise<Blob> {
   if ("convertToBlob" in canvas) return canvas.convertToBlob({ type: "image/webp", quality });
   return new Promise((res, rej) =>
-    (canvas as HTMLCanvasElement).toBlob((b) => (b ? res(b) : rej(new ImageConvertError("Encoding failed."))), "image/webp", quality),
+    canvas.toBlob((b) => (b ? res(b) : rej(new ImageConvertError("Encoding failed."))), "image/webp", quality),
   );
 }
 
@@ -73,7 +73,7 @@ export async function toWebp(file: Blob, o: WebpOptions): Promise<WebpResult> {
     let w = plan.dw, h = plan.dh;
     for (;;) {
       const canvas = makeCanvas(w, h);
-      const ctx = canvas.getContext("2d") as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
+      const ctx = canvas.getContext("2d");
       if (!ctx) throw new ImageConvertError("Canvas is not available.");
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";

@@ -34,7 +34,7 @@
 .s-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; background: var(--background-modifier-hover); font-size: var(--font-ui-small); }
 .s-friend { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-ui-small); }
 .s-progress { height: 4px; border-radius: 2px; background: var(--background-modifier-border); margin-top: 6px; overflow: hidden; }
-.s-progress-bar { height: 100%; background: var(--interactive-accent); }
+.s-progress-bar { height: 100%; width: var(--s-progress, 0%); background: var(--interactive-accent); }
 .s-stats { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin-top: 6px; font-size: var(--font-ui-small); }
 .s-line { padding: 3px 0; font-size: var(--font-ui-small); border-bottom: 1px solid var(--background-modifier-border-hover); }
 .s-edit button { margin-top: 8px; }

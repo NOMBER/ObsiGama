@@ -426,7 +426,7 @@ export class SClient {
   }
 
   private persist(): Promise<void> {
-    const snapshot = JSON.parse(JSON.stringify(this.state));
+    const snapshot = JSON.parse(JSON.stringify(this.state)) as LocalState;
     this.saving = this.saving.then(() => this.storage.save(snapshot)).catch((e) => this.log("[OBSIGAMA SDK] save failed", e));
     return this.saving;
   }
@@ -446,11 +446,12 @@ export class SClient {
   }
 
   private timer(cb: () => void, ms: number): unknown {
-    return this.opts.setTimer ? this.opts.setTimer(cb, ms) : setTimeout(cb, ms);
+    if (this.opts.setTimer) return this.opts.setTimer(cb, ms);
+    return window.setTimeout(cb, ms); // popout-safe; tests inject setTimer
   }
   private clear(h: unknown): void {
     if (this.opts.clearTimer) this.opts.clearTimer(h);
-    else clearTimeout(h as ReturnType<typeof setTimeout>);
+    else window.clearTimeout(h as number);
   }
 
   private safe(fn: () => void): void {
@@ -471,3 +472,4 @@ function safe<T>(fn: () => T): T | undefined {
 function safeBool(fn: () => boolean): boolean {
   return safe(fn) === true;
 }
+

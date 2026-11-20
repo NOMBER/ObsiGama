@@ -1,6 +1,6 @@
 {
   "name": "obsigama",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "OBSIGAMA: a game hub for Obsidian. Accounts, profiles, library and leaderboards on Supabase, plus an SDK for game plugins.",
   "main": "main.js",
@@ -12,7 +12,8 @@
     "build": "npm run typecheck && node esbuild.config.mjs production",
     "typecheck": "tsc -noEmit -skipLibCheck && npm run typecheck -w packages/sdk && tsc -noEmit -skipLibCheck -p examples/tsconfig.json",
     "test": "vitest run",
-    "check": "npm run build && npm test"
+    "check": "npm run build && npm run lint && npm test",
+    "lint": "eslint ."
   },
   "keywords": [
     "obsidian",
@@ -23,14 +24,17 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/node": "^22.20.5",
-    "builtin-modules": "^5.5.0",
     "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-plugin-obsidianmd": "^0.6.0",
     "obsidian": "^1.14.4",
     "sharp": "^0.35.5",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.119.0"
+    "@supabase/supabase-js": "^2.119.0",
+    "@obsigama/sdk": "0.1.0"
   }
 }

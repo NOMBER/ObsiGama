@@ -1,9 +1,11 @@
 {
   "id": "obsigama",
   "name": "OBSIGAMA",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "minAppVersion": "1.8.7",
-  "description": "OBSIGAMA, a game hub for Obsidian: account, profile, game library, achievements and leaderboards for game plugins that opt in. Requires an online account.",
+  "description": "Browse a game catalog, keep a player profile with friends, achievements, badges and leaderboards, and sync results from game plugins that opt in. Requires an online account.",
   "author": "NOMBER",
+  "authorUrl": "https://nomberobsidian.github.io",
+  "fundingUrl": "https://donatre.github.io",
   "isDesktopOnly": false
 }

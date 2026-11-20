@@ -123,7 +123,7 @@ export class Backend {
     this.unsubAuth?.();
     this.unsubAuth = null;
     if (this.client) {
-      try { this.client.auth.stopAutoRefresh(); } catch { /* ignore */ }
+      try { void this.client.auth.stopAutoRefresh().catch(() => undefined); } catch { /* ignore */ }
     }
     this.client = null;
     this.clientKey = "";
@@ -195,34 +195,33 @@ export class Backend {
     this.emit();
   }
 
+  /** Typed wrapper: supabase-js without generated types returns `any` data. */
+  private async rpc<T>(fn: string, args?: Record<string, unknown>): Promise<T> {
+    const res: { data: unknown; error: unknown } = await this.sb().rpc(fn, args);
+    if (res.error) throw toError(res.error);
+    return res.data as T;
+  }
+
   // ---------- reads ----------
   async catalog(): Promise<CatalogGame[]> {
     const { data, error } = await this.sb().from("games")
       .select("id, plugin_id, name, description, repo_url, icon_url").eq("status", "listed").order("sort_order").order("name");
     if (error) throw error;
-    return (data ?? []) as CatalogGame[];
+    return data ?? [];
   }
   async profile(username: string): Promise<Profile | null> {
-    const { data, error } = await this.sb().rpc("get_profile", { p_username: username });
-    if (error) throw error;
-    return (data as Profile | null) ?? null;
+    return (await this.rpc<Profile | null>("get_profile", { p_username: username })) ?? null;
   }
   async searchUsers(q: string): Promise<UserCard[]> {
-    const { data, error } = await this.sb().rpc("search_users", { p_query: q, p_limit: 20 });
-    if (error) throw error;
-    return (data ?? []) as UserCard[];
+    return (await this.rpc<UserCard[] | null>("search_users", { p_query: q, p_limit: 20 })) ?? [];
   }
   async friends(): Promise<FriendRow[]> {
-    const { data, error } = await this.sb().rpc("my_friends");
-    if (error) throw error;
-    return (data ?? []) as FriendRow[];
+    return (await this.rpc<FriendRow[] | null>("my_friends")) ?? [];
   }
 
   // ---------- writes ----------
   async sendFriendRequest(username: string): Promise<string> {
-    const { data, error } = await this.sb().rpc("send_friend_request", { p_username: username });
-    if (error) throw error;
-    return data as string;
+    return this.rpc<string>("send_friend_request", { p_username: username });
   }
   async respondFriend(userId: string, accept: boolean): Promise<void> {
     const { error } = await this.sb().rpc("respond_friend_request", { p_user: userId, p_accept: accept });
@@ -264,9 +263,7 @@ export class Backend {
 
   /** Sync RPC used by game plugins through the PlatformAPI. */
   async ingest(gameId: string, manifestVersion: number, events: unknown[]): Promise<Record<string, unknown>> {
-    const { data, error } = await this.sb().rpc("ingest_batch", { p_game_id: gameId, p_manifest_version: manifestVersion, p_events: events });
-    if (error) throw error;
-    return (data ?? {}) as Record<string, unknown>;
+    return (await this.rpc<Record<string, unknown> | null>("ingest_batch", { p_game_id: gameId, p_manifest_version: manifestVersion, p_events: events })) ?? {};
   }
 
   private requireUser(): string {
@@ -274,4 +271,11 @@ export class Backend {
     if (!uid) throw new Error("Sign in first.");
     return uid;
   }
+}
+
+/** PostgREST errors are plain objects; keep message and code on a real Error. */
+function toError(e: unknown): Error {
+  if (e instanceof Error) return e;
+  const o = (e ?? {}) as { message?: string; code?: string };
+  return Object.assign(new Error(o.message ?? "Request failed"), { code: o.code });
 }

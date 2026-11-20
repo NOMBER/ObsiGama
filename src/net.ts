@@ -13,6 +13,7 @@ export class OfflineError extends Error {
 export function makeFetch(isOnline: () => boolean, useRequestUrl: () => boolean): typeof fetch {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     if (!isOnline()) throw new OfflineError();
+    // supabase-js needs the Fetch API (streams, AbortSignal); Supabase allows any origin. requestUrl is the opt-in fallback.
     if (!useRequestUrl()) return fetch(input, init);
     return requestUrlFetch(input, init);
   };

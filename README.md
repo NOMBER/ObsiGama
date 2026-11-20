@@ -120,11 +120,16 @@ Badges are rows in `public.badges`; the server awards them, never the client:
 ```bash
 npm install
 npm run build        # typecheck (plugin, SDK, examples) + esbuild -> main.js
-npm test             # unit tests (SDK state/queue/client, image math)
+npm run lint         # eslint with Obsidian's official rules (eslint-plugin-obsidianmd)
+npm test             # unit tests (SDK state/queue/client, image math, game submissions)
 ./scripts/test-sql.sh   # SQL smoke tests; needs a local Postgres 15+ (PGHOST/PGPORT/PGUSER)
 ```
 
 To try it, copy `main.js`, `manifest.json`, `styles.css` into `<vault>/.obsidian/plugins/obsigama/` and enable it.
+
+Releases: bump `version` in `manifest.json`, `package.json` and `versions.json`, commit, then push a tag that equals the
+version exactly (no `v`): `git tag 1.0.1 && git push origin 1.0.1`. The `Release` workflow builds, lints, tests and
+attaches `main.js`, `manifest.json` and `styles.css` to the GitHub release.
 
 ## Roadmap
 

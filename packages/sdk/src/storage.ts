@@ -23,13 +23,14 @@ interface AdapterLike {
 export function pluginFileStorage(plugin: PluginLike, fileName = "obsigama-sync.json"): SdkStorage {
   const app = plugin.app as { vault?: { adapter?: AdapterLike; configDir?: string } };
   const adapter = app.vault?.adapter;
-  const dir = plugin.manifest.dir ?? `${app.vault?.configDir ?? ".obsidian"}/plugins/${plugin.manifest.id}`;
+  const configDir = app.vault?.configDir;
+  const dir = plugin.manifest.dir ?? (configDir ? `${configDir}/plugins/${plugin.manifest.id}` : null);
+  if (!adapter || !dir) return memoryStorage();
   const path = `${dir}/${fileName}`;
-  if (!adapter) return memoryStorage();
   return {
     async load() {
       try {
-        return (await adapter.exists(path)) ? JSON.parse(await adapter.read(path)) : null;
+        return (await adapter.exists(path)) ? (JSON.parse(await adapter.read(path)) as unknown) : null;
       } catch {
         return null; // corrupt file: start fresh rather than break the game
       }

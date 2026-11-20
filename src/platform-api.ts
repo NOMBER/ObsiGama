@@ -42,7 +42,7 @@ export class SPlatformAPI implements PlatformAPI {
     const st = this.getStatus();
     if (!st.enabled) return Promise.resolve({ ok: false, error: "disabled", message: `${PLATFORM_NAME} is offline` });
     if (!st.signedIn || !st.userId) {
-      this.plugin.openHub();
+      void this.plugin.openHub();
       return Promise.resolve({ ok: false, error: "signed-out", message: `Sign in to ${PLATFORM_NAME} first` });
     }
     if (this.isLinked(req.gameId)) return Promise.resolve({ ok: true, userId: st.userId });
@@ -50,13 +50,14 @@ export class SPlatformAPI implements PlatformAPI {
     if (existing) return existing;
     const userId = st.userId;
     const p = new Promise<LinkResponse>((resolve) => {
-      new ConsentModal(this.plugin.app, req.name || req.gameId, st.username, async (allowed) => {
+      new ConsentModal(this.plugin.app, req.name || req.gameId, st.username, (allowed) => {
         this.pendingLinks.delete(req.gameId);
         if (!allowed) return resolve({ ok: false, error: "denied" });
         this.plugin.settings.linkedGames[req.gameId] = { userId, name: req.name, linkedAt: Date.now() };
-        await this.plugin.saveSettings(false);
-        this.notify();
-        resolve({ ok: true, userId });
+        void this.plugin.saveSettings(false).finally(() => {
+          this.notify();
+          resolve({ ok: true, userId });
+        });
       }).open();
     });
     this.pendingLinks.set(req.gameId, p);
@@ -104,7 +105,7 @@ export class SPlatformAPI implements PlatformAPI {
   }
 
   openHub(): void {
-    this.plugin.openHub();
+    void this.plugin.openHub();
   }
 }
 

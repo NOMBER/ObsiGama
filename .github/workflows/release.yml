@@ -1,0 +1,50 @@
+# Builds the plugin and publishes a GitHub release when a version tag is pushed.
+# Tag = manifest version exactly, without "v" (Obsidian downloads the release whose tag equals manifest.json "version"):
+#   npm version is not used; bump manifest.json, package.json and versions.json, commit, then
+#   git tag 1.0.1 && git push origin 1.0.1
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Check the tag matches manifest.json
+        run: |
+          v=$(node -p "require('./manifest.json').version")
+          if [ "$v" != "${GITHUB_REF_NAME}" ]; then echo "tag ${GITHUB_REF_NAME} != manifest version $v"; exit 1; fi
+          node -e "const v=require('./versions.json'); if(!v['$v']) { console.error('versions.json has no entry for $v'); process.exit(1) }"
+
+      - name: Build, lint, test
+        run: |
+          npm run build
+          npm run lint
+          npm test
+
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" main.js manifest.json styles.css --clobber
+          else
+            gh release create "$tag" main.js manifest.json styles.css --title "$tag" --generate-notes
+          fi
