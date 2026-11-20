@@ -1,9 +1,10 @@
 // Everything that talks to Supabase. Created lazily; torn down when OBSIGAMA is switched offline.
 import { createClient, type Session, type SupabaseClient } from "@supabase/supabase-js";
-import type { App } from "obsidian";
+import type { Plugin } from "obsidian";
 import { makeFetch, OfflineError } from "./net";
 import { PLATFORM_NAME } from "./brand";
 import { isSecretKey, serverOf } from "./server";
+import type { PluginDataFile } from "./plugin-data";
 import type { SSettings } from "./settings";
 import { AVATAR_WEBP, toWebp } from "./image/webp";
 
@@ -84,7 +85,7 @@ export class Backend {
   private listeners = new Set<() => void>();
   private unsubAuth: (() => void) | null = null;
 
-  constructor(private app: App, private settings: () => SSettings) {}
+  constructor(private plugin: Plugin, private settings: () => SSettings, private data: PluginDataFile) {}
 
   /** (Re)creates or drops the client according to the settings. */
   async reconfigure(): Promise<void> {
@@ -95,14 +96,15 @@ export class Backend {
     this.teardown();
     this.clientKey = key;
     if (s.online && this.configured()) {
-      const vaultStorage = {
-        getItem: (k: string) => (this.app.loadLocalStorage(k) as string | null) ?? null,
-        setItem: (k: string, v: string) => this.app.saveLocalStorage(k, v),
-        removeItem: (k: string) => this.app.saveLocalStorage(k, null),
+      await this.migrateLegacySession();
+      const storage = {
+        getItem: (k: string) => this.data.getAuth(k),
+        setItem: (k: string, v: string) => this.data.setAuth(k, v),
+        removeItem: (k: string) => this.data.removeAuth(k),
       };
       this.client = createClient(srv.url, srv.key, {
-        auth: { storage: vaultStorage, storageKey: SESSION_KEY, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
-        global: { fetch: makeFetch(() => this.settings().online, () => this.settings().useRequestUrl) },
+        auth: { storage, storageKey: SESSION_KEY, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+        global: { fetch: makeFetch(() => this.settings().online) },
       });
       const { data } = this.client.auth.onAuthStateChange((_ev, session) => {
         const changed = session?.user.id !== this.session?.user.id;
@@ -132,6 +134,21 @@ export class Backend {
     this.clientKey = "";
     this.session = null;
     this.username = null;
+  }
+
+  /** Move a session written by 1.0.2 (app.loadLocalStorage) into plugin data, once. */
+  private async migrateLegacySession(): Promise<void> {
+    try {
+      if (await this.data.getAuth(SESSION_KEY)) return;
+      const raw: unknown = this.plugin.app.loadLocalStorage(SESSION_KEY);
+      if (raw == null) return;
+      const value = typeof raw === "string" ? raw : JSON.stringify(raw);
+      if (!value || value === "null") return;
+      await this.data.setAuth(SESSION_KEY, value);
+      this.plugin.app.saveLocalStorage(SESSION_KEY, null);
+    } catch (e) {
+      console.warn("[ObsiGama] could not migrate the saved session", e);
+    }
   }
 
   configured(): boolean {

@@ -121,7 +121,7 @@ describe("SQL and checklist", () => {
   });
   it("checklist mentions the manual QA steps", () => {
     const c = reviewChecklist(parseIssue(issueBody()), { issue: "7" });
-    expect(c).toMatch(/WITHOUT GAMA Hub/);
+    expect(c).toMatch(/WITHOUT ObsiGama/);
     expect(c).toMatch(/Issue #7/);
     expect(c).toMatch(/1 claim-type/);
   });

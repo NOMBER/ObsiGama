@@ -5,7 +5,7 @@ import obsidianmd from "eslint-plugin-obsidianmd";
 export default defineConfig([
   globalIgnores([
     "node_modules", "main.js", "esbuild.config.mjs", "vitest.config.mts", "scripts", "supabase",
-    "examples", "test", "packages/sdk/test", "packages/sdk/README.md", "docs",
+    "test", "packages/sdk/test", "packages/sdk/README.md", "docs",
   ]),
   ...obsidianmd.configs.recommended,
   {

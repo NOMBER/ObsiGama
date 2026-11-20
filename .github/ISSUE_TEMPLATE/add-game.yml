@@ -1,5 +1,5 @@
 name: "Add a game / Добавить игру"
-description: "Submit your Obsidian game plugin to the GAMA Hub catalog. Every game is reviewed by hand. / Заявка на добавление игры в каталог GAMA Hub. Каждая игра проверяется вручную."
+description: "Submit your Obsidian game plugin to the ObsiGama catalog. Every game is reviewed by hand. / Заявка на добавление игры в каталог ObsiGama. Каждая игра проверяется вручную."
 title: "[Game] "
 labels: ["game-submission"]
 body:
@@ -86,13 +86,13 @@ body:
       label: "Rules / Правила"
       description: "All boxes are required. / Все пункты обязательны."
       options:
-        - label: "The game plays fully offline and without GAMA Hub installed. / Игра полностью работает офлайн и без установленного GAMA Hub."
+        - label: "The game plays fully offline and without ObsiGama installed. / Игра полностью работает офлайн и без установленного ObsiGama."
           required: true
-        - label: "The 'Connect to GAMA Hub' toggle is opt-in and OFF by default. / Переключатель «Подключить к GAMA Hub» включается только самим игроком и по умолчанию выключен."
+        - label: "The 'Connect to ObsiGama' toggle is opt-in and OFF by default. / Переключатель «Подключить к ObsiGama» включается только самим игроком и по умолчанию выключен."
           required: true
         - label: "The plugin contains no Supabase keys or other secrets. / В плагине нет ключей Supabase и других секретов."
           required: true
-        - label: "The plugin uses the official GAMA Hub SDK unmodified (MIT). / Плагин использует официальный SDK GAMA Hub без изменений (MIT)."
+        - label: "The plugin uses the official ObsiGama SDK unmodified (MIT). / Плагин использует официальный SDK ObsiGama без изменений (MIT)."
           required: true
         - label: "The README discloses network use as required by Obsidian's developer policies. / README описывает использование сети, как требуют правила Obsidian для разработчиков."
           required: true

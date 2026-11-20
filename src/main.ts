@@ -4,17 +4,20 @@ import { Backend } from "./backend";
 import { HUB_VIEW_TYPE, PLATFORM_NAME, RIBBON_ICON } from "./brand";
 import { SPlatformAPI } from "./platform-api";
 import { normalizeSettings, SSettingTab, type SSettings } from "./settings";
+import { PluginDataFile } from "./plugin-data";
 import { HubView } from "./views/hub-view";
 
 export default class SPlugin extends Plugin {
   settings!: SSettings;
+  dataFile!: PluginDataFile;
   backend!: Backend;
   /** Public API for game plugins (see packages/sdk). */
   api!: SPlatformAPI;
 
   async onload(): Promise<void> {
+    this.dataFile = new PluginDataFile(this);
     this.settings = normalizeSettings(await this.loadData());
-    this.backend = new Backend(this.app, () => this.settings);
+    this.backend = new Backend(this, () => this.settings, this.dataFile);
     this.api = new SPlatformAPI(this);
 
     this.registerView(HUB_VIEW_TYPE, (leaf: WorkspaceLeaf) => new HubView(leaf, this));
@@ -36,7 +39,7 @@ export default class SPlugin extends Plugin {
   }
 
   async saveSettings(reconnect: boolean): Promise<void> {
-    await this.saveData(this.settings);
+    await this.dataFile.merge({ ...this.settings });
     if (reconnect) await this.backend.reconfigure();
   }
 

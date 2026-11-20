@@ -1,6 +1,7 @@
 // OBSIGAMA hub: catalog, library, friends, profiles. Plain DOM in one ItemView, no framework.
 import { ItemView, Notice, setIcon, type WorkspaceLeaf } from "obsidian";
 import { fmtDate, fromNow } from "./time";
+import logoEmblem from "../assets/logo-emblem.webp";
 import { HUB_VIEW_TYPE, PLATFORM_NAME, RIBBON_ICON } from "../brand";
 import type { CatalogGame, FriendRow, Profile } from "../backend";
 import type SPlugin from "../main";
@@ -102,6 +103,7 @@ export class HubView extends ItemView {
 
   private renderHeader(root: HTMLElement, signedIn: boolean, username: string | null): void {
     const h = root.createDiv({ cls: "s-header" });
+    h.createEl("img", { cls: "s-logo-img", attr: { src: logoEmblem, alt: PLATFORM_NAME } });
     h.createSpan({ cls: "s-logo", text: PLATFORM_NAME });
     const nav = h.createDiv({ cls: "s-nav" });
     const tabs: [Tab, string][] = [["catalog", "Catalog"], ["library", "Library"], ["friends", "Friends"]];
@@ -452,7 +454,8 @@ function fmtDuration(ms: number): string {
 function progress(parent: HTMLElement, n: number, total: number): void {
   if (!total) return;
   const wrap = parent.createDiv({ cls: "s-progress", attr: { title: `${n} of ${total} achievements` } });
-  wrap.createDiv({ cls: "s-progress-bar" }).setCssProps({ "--s-progress": `${Math.min(100, Math.round((n / total) * 100))}%` });
+  const bar = wrap.createDiv({ cls: "s-progress-bar" });
+  bar.style.setProperty("--s-progress", `${Math.min(100, Math.round((n / total) * 100))}%`);
   parent.createDiv({ cls: "s-muted", text: `Achievements ${n}/${total}` });
 }
 

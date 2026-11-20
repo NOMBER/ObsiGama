@@ -6,7 +6,7 @@
 // 2. Ship obsigama-manifest.json with the plugin and register it on the OBSIGAMA server once (scripts/manifest-to-sql.mjs).
 // 3. Wire three places: onload, recordSession, the settings tab. That's all.
 
-import { Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { Notice, Plugin, Setting } from "obsidian";
 import { addConnectSetting, SClient, type GameManifest, type SdkLang } from "@obsigama/sdk";
 import manifestJson from "./obsigama-manifest.json";
 
@@ -66,23 +66,14 @@ export class MiniGamesS {
 }
 
 /**
- * In MiniGamesSettingTab: add the toggle + live status line at the end of display(),
- * and stop status updates in hide().
+ * In MiniGamesSettingTab.display(), add the toggle + live status line at the end,
+ * and call the returned dispose function from hide().
  */
-export class MiniGamesSettingTabWithS extends PluginSettingTab {
-  private disposeS: (() => void) | null = null;
-  constructor(private p: Plugin & { s?: MiniGamesS; settings: { language: SdkLang } }) { super(p.app, p); }
-  display(): void {
-    const el = this.containerEl;
-    el.empty();
-    // ... existing settings ...
-    if (this.p.s) {
-      new Setting(el).setName("OBSIGAMA").setHeading();
-      this.disposeS = addConnectSetting(el, this.p.s.client, Setting, { lang: this.p.settings.language });
-    }
-  }
-  hide(): void {
-    this.disposeS?.();
-    this.disposeS = null;
-  }
+export function addMiniGamesObsigamaSettings(
+  containerEl: HTMLElement,
+  client: SClient,
+  lang: SdkLang,
+): () => void {
+  new Setting(containerEl).setName("OBSIGAMA").setHeading();
+  return addConnectSetting(containerEl, client, Setting, { lang });
 }

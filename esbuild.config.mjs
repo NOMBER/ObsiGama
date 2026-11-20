@@ -4,6 +4,8 @@ import { builtinModules } from "node:module";
 
 const prod = process.argv[2] === "production";
 
+const memStore = `var __ogMemLocal=(function(){var m=Object.create(null);return{get length(){return Object.keys(m).length},clear:function(){m=Object.create(null)},getItem:function(k){return Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},key:function(i){return Object.keys(m)[i]||null},removeItem:function(k){delete m[k]},setItem:function(k,v){m[k]=String(v)}}})();var __ogMemSession=(function(){var m=Object.create(null);return{get length(){return Object.keys(m).length},clear:function(){m=Object.create(null)},getItem:function(k){return Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},key:function(i){return Object.keys(m)[i]||null},removeItem:function(k){delete m[k]},setItem:function(k,v){m[k]=String(v)}}})();`;
+
 const ctx = await esbuild.context({
   entryPoints: ["src/main.ts"],
   bundle: true,
@@ -26,6 +28,17 @@ const ctx = await esbuild.context({
   treeShaking: true,
   minify: prod,
   outfile: "main.js",
+  loader: { ".webp": "dataurl" },
+  inject: ["./src/shim-fetch.ts"],
+  banner: { js: memStore },
+  define: {
+    "globalThis.localStorage": "__ogMemLocal",
+    "globalThis.sessionStorage": "__ogMemSession",
+    "global.localStorage": "__ogMemLocal",
+    "global.sessionStorage": "__ogMemSession",
+    "window.localStorage": "__ogMemLocal",
+    "window.sessionStorage": "__ogMemSession",
+  },
 });
 
 if (prod) {

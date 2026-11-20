@@ -1,5 +1,7 @@
 /* OBSIGAMA hub: minimal, theme-native styles */
-.s-hub { padding: 0 !important; }
+.workspace-leaf-content[data-type="obsigama-hub"] .view-content { padding: 0; }
+.s-hub { padding: 0; }
+.s-logo-img { width: 28px; height: 28px; object-fit: contain; flex: none; }
 .s-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--background-modifier-border); position: sticky; top: 0; background: var(--background-primary); z-index: 1; }
 .s-logo { font-weight: 700; font-size: 1.2em; margin-right: 8px; }
 .s-nav { display: flex; gap: 4px; flex-wrap: wrap; }
