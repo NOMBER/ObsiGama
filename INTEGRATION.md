@@ -123,13 +123,20 @@ Other calls: `reportStat(id, value)`, `submitScore(lb, value)`, `unlockAchieveme
 Status values: `off`, `no-platform`, `platform-disabled` (OBSIGAMA switched offline), `not-configured`, `signed-out`,
 `needs-link`, `link-denied`, `syncing`, `pending`, `synced`, `error`.
 
-## 5. Register the game on OBSIGAMA
+## 5. Submit the game to OBSIGAMA
 
-```bash
-node scripts/manifest-to-sql.mjs path/to/obsigama-manifest.json --listed --repo https://github.com/you/my-game --description "Short pitch"
-```
-Run the output in the Supabase SQL editor. Re-run it whenever you bump `manifestVersion` (additive changes only;
-removed stats/boards are marked retired, never deleted).
+You don't run any SQL and never get server keys. Open an issue with the
+[Add a game / Добавить игру](https://github.com/NOMBER/ObsiGama/issues/new?template=add-game.yml) template: game name,
+plugin id, public repo, short description, the full `obsigama-manifest.json` and a square icon. The maintainer
+validates the manifest, reviews the code, play-tests the game by hand and then registers it on the server. Every game is
+reviewed manually and can be rejected or delisted; the rules are in the README
+([Add your game](README.md#add-your-game--как-добавить-свою-игру-в-obsigama)).
+
+Until your game is approved, the sync status says "This game is not registered on OBSIGAMA yet" and the SDK keeps
+everything in its local queue; nothing is lost, it syncs after approval.
+
+To change the manifest later, bump `manifestVersion` (additive changes only: removed stats/boards are marked retired,
+never deleted) and submit it again.
 
 ## How it works inside
 

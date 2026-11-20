@@ -1,0 +1,102 @@
+name: "Add a game / Добавить игру"
+description: "Submit your Obsidian game plugin to the OBSIGAMA catalog. Every game is reviewed by hand. / Заявка на добавление игры в каталог OBSIGAMA. Каждая игра проверяется вручную."
+title: "[Game] "
+labels: ["game-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before you submit, connect your game with the SDK as described in [INTEGRATION.md](https://github.com/NOMBER/ObsiGama/blob/main/INTEGRATION.md).
+        The maintainer reviews every submission by hand: reads the code, installs the plugin in a test vault and plays it. A game can be rejected or removed later.
+
+        Перед подачей подключите игру к SDK по [INTEGRATION.md](https://github.com/NOMBER/ObsiGama/blob/main/INTEGRATION.md).
+        Каждую заявку мейнтейнер проверяет вручную: читает код, ставит плагин в тестовое хранилище и играет. Игру могут отклонить или позже убрать из каталога.
+  - type: input
+    id: name
+    attributes:
+      label: "Game name / Название игры"
+      description: "As it should appear in the catalog (max 80 characters). / Как игра будет называться в каталоге (до 80 символов)."
+      placeholder: "Mini Old Games"
+    validations:
+      required: true
+  - type: input
+    id: plugin_id
+    attributes:
+      label: "Plugin id / Id плагина"
+      description: "The `id` from your plugin's manifest.json. Must equal `pluginId` in obsigama-manifest.json. / Поле `id` из manifest.json плагина. Должно совпадать с `pluginId` в obsigama-manifest.json."
+      placeholder: "good-old-games"
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: "GitHub repository / Репозиторий на GitHub"
+      description: "Public repository with the full source code. / Публичный репозиторий с полным исходным кодом."
+      placeholder: "https://github.com/you/your-game"
+    validations:
+      required: true
+  - type: dropdown
+    id: store
+    attributes:
+      label: "In the Obsidian community store? / Есть в каталоге плагинов Obsidian?"
+      options:
+        - "Yes / Да"
+        - "Submitted, waiting for review / Подан, ждёт проверки"
+        - "No / Нет"
+    validations:
+      required: true
+  - type: input
+    id: store_url
+    attributes:
+      label: "Community store link (optional) / Ссылка в каталоге Obsidian (необязательно)"
+      placeholder: "https://obsidian.md/plugins?id=your-plugin-id"
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: "Short description / Краткое описание"
+      description: "One or two sentences, max ~200 characters, plain text. Shown in the catalog. / Одно-два предложения, до ~200 символов, без разметки. Показывается в каталоге."
+    validations:
+      required: true
+  - type: textarea
+    id: manifest
+    attributes:
+      label: "obsigama-manifest.json"
+      description: "Paste the full file. / Вставьте файл целиком."
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: icon
+    attributes:
+      label: "Icon / Иконка"
+      description: "Drag the image here or paste a direct URL. Square PNG, JPG or WebP, at least 128×128. The maintainer converts it to WebP 128×128. / Перетащите картинку сюда или вставьте прямую ссылку. Квадратная PNG, JPG или WebP, от 128×128. Мейнтейнер сконвертирует её в WebP 128×128."
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots (optional) / Скриншоты (необязательно)"
+    validations:
+      required: false
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: "Rules / Правила"
+      description: "All boxes are required. / Все пункты обязательны."
+      options:
+        - label: "The game plays fully offline and without OBSIGAMA installed. / Игра полностью работает офлайн и без установленного OBSIGAMA."
+          required: true
+        - label: "The 'Connect to OBSIGAMA' toggle is opt-in and OFF by default. / Переключатель «Подключить к OBSIGAMA» включается только самим игроком и по умолчанию выключен."
+          required: true
+        - label: "The plugin contains no Supabase keys or other secrets. / В плагине нет ключей Supabase и других секретов."
+          required: true
+        - label: "The plugin uses the official OBSIGAMA SDK unmodified (MIT). / Плагин использует официальный SDK OBSIGAMA без изменений (MIT)."
+          required: true
+        - label: "The README discloses network use as required by Obsidian's developer policies. / README описывает использование сети, как требуют правила Obsidian для разработчиков."
+          required: true
+        - label: "No telemetry and no ads. / Никакой телеметрии и рекламы."
+          required: true
+        - label: "I agree that the maintainer may reject the game or remove it from the catalog at any time. / Я согласен, что мейнтейнер может отклонить игру или убрать её из каталога в любой момент."
+          required: true

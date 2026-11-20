@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "How to connect a game / Как подключить игру"
+    url: https://github.com/NOMBER/ObsiGama/blob/main/INTEGRATION.md
+    about: "Read this before submitting a game. / Прочитайте перед подачей заявки."

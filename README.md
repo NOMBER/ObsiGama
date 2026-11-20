@@ -30,7 +30,9 @@ playable offline. A game that opts in (its own **Connect to OBSIGAMA** toggle, o
 | `examples/mini-old-games`, `examples/hellvault` | Ready integration code + manifests for the two existing games ([Mini Old Games](https://github.com/NOMBER/Mini-Old-Games), [HELLVAULT](https://github.com/NOMBER/HELLVAULT)) |
 | `supabase/migrations/` | Database schema, RLS, RPCs, triggers, storage buckets, seed (badges + 2 games) |
 | `supabase/tests/` | SQL smoke tests (run on plain Postgres with a Supabase stub) |
+| `scripts/approve-game.mjs` | Maintainer: validates a game submission issue → icon WebP + SQL (never runs SQL) |
 | `scripts/manifest-to-sql.mjs` | Registers a game: manifest JSON → SQL |
+| `.github/ISSUE_TEMPLATE/add-game.yml` | "Add a game" submission form |
 | [`INTEGRATION.md`](INTEGRATION.md) | How to connect any game plugin |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Design notes and decisions |
 
@@ -124,21 +126,59 @@ npm test             # unit tests (SDK state/queue/client, image math)
 
 To try it, copy `main.js`, `manifest.json`, `styles.css` into `<vault>/.obsidian/plugins/obsigama/` and enable it.
 
-## Register a game
-
-```bash
-node scripts/manifest-to-sql.mjs path/to/obsigama-manifest.json --listed --repo https://github.com/owner/repo --description "..."
-```
-Run the printed SQL in the SQL editor (or save it as a new migration). See [INTEGRATION.md](INTEGRATION.md).
-
 ## Roadmap
 
 - **Now (this version):** account, profile (avatar, bio, privacy, join date), catalog, library, friends + nickname
   search, public profiles with games/stats/achievements/badges/activity, SDK + server-validated sync, WebP images.
-- **Next:** leaderboard view in the hub; reviews UI (table and RLS are ready); developer self-registration of games
-  (signed manifests with `game_keys`); game icons upload tool; pruning old `scores`/`ingest_log` with `pg_cron`.
+- **Next:** leaderboard view in the hub; reviews UI (table and RLS are ready); developer self-service publishing
+  (signed manifests with `game_keys`; for now games are submitted by issue and approved by hand); game icons upload tool; pruning old `scores`/`ingest_log` with `pg_cron`.
 - **Later:** messaging (only if it stays cheap: polling first, Realtime only in an open chat); community hub
   (postponed); OAuth (GitHub/Discord) sign-in; WebP encoding on iOS; server-side re-encoding Edge Function.
+
+## Add your game / Как добавить свою игру в OBSIGAMA
+
+Any Obsidian game plugin can join the catalog. **Every game is reviewed by hand by the maintainer** (code read-through
+and a play test in a clean vault) before it is listed, and a game can be rejected or delisted later.
+
+1. **Integrate the SDK** as described in [INTEGRATION.md](INTEGRATION.md): an `obsigama-manifest.json`, the
+   "Connect to OBSIGAMA" toggle in your settings, one `endRun` per finished run.
+2. **Open a submission issue** with the template:
+   [Add a game / Добавить игру](https://github.com/NOMBER/ObsiGama/issues/new?template=add-game.yml).
+   It asks for the game name, plugin id, public GitHub repo, community store status, a short description (~200
+   characters), the full `obsigama-manifest.json` and a square icon (PNG/JPG/WebP; converted to WebP 128×128).
+3. **Review and manual QA**: the maintainer validates the manifest, reads the code, installs the plugin in a test
+   vault, plays it offline, turns sync on, finishes a run and checks the profile. Questions go to the issue.
+4. **Listed**: the maintainer registers the game on the server and closes the issue. To update the manifest later,
+   bump `manifestVersion` and open a new issue (or comment on the old one).
+
+**Acceptance rules** (all required):
+
+- the game plays fully offline and without OBSIGAMA installed;
+- the "Connect to OBSIGAMA" toggle is opt-in and **off by default**;
+- no Supabase keys, tokens or other secrets in the plugin, and no own requests to OBSIGAMA's server;
+- the official SDK is used unmodified (MIT);
+- the README discloses network use, as required by
+  [Obsidian's developer policies](https://docs.obsidian.md/Developer+policies);
+- no telemetry and no ads;
+- public source code on GitHub;
+- the developer agrees that the maintainer may reject the game or remove it from the catalog.
+
+### Maintainer: approving a game
+
+`scripts/approve-game.mjs` never touches the database: it validates and prints SQL that you run yourself.
+
+```bash
+node scripts/approve-game.mjs 12 --check     # validate issue #12, check the repo is public, print the review checklist
+node scripts/approve-game.mjs 12 --write     # after manual QA: icon -> supabase/approved/<game-id>.webp,
+                                             # SQL -> supabase/approved/<game-id>.sql
+node scripts/approve-game.mjs 12 --write --supabase-url https://<ref>.supabase.co   # also puts the icon URL into the SQL
+node scripts/approve-game.mjs --manifest path/to/obsigama-manifest.json \
+  --repo-url https://github.com/owner/repo --description "Short pitch" [--icon icon.png] [--check|--write]
+```
+
+Then: SQL Editor → run the SQL; Storage → `game-icons` → upload the WebP as `games/<game-id>.webp`; close the issue.
+Use `--draft` to register a game without listing it. It needs `gh` (logged in) and `npm install` (for `sharp`).
+`scripts/manifest-to-sql.mjs` is the bare manifest → SQL tool (also validates) for your own games.
 
 ## License
 
