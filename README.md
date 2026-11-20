@@ -1,27 +1,38 @@
-# OBSIGAMA — a game hub for Obsidian
+# ObsiGama — a game hub for Obsidian
 
 > The display name lives in one constant (`PLATFORM_NAME` in `src/brand.ts`) plus `manifest.json` → `name`.
-> The plugin id is `obsigama`: game plugins find OBSIGAMA by that id, so it should not change after the first release.
+> The plugin id is `obsigama`: game plugins find ObsiGama by that id, so it should not change after the first release.
 
-OBSIGAMA is "Steam inside Obsidian": an online hub with your account, profile, game catalog, library, friends,
+ObsiGama is "Steam inside Obsidian": an online hub with your account, profile, game catalog, library, friends,
 achievements, badges and leaderboards. Games are **separate Obsidian plugins** (on GitHub) that stay fully
-playable offline. A game that opts in (its own **Connect to OBSIGAMA** toggle, off by default) uses the small
-[`@obsigama/sdk`](packages/sdk) to send each finished run to your OBSIGAMA account.
+playable offline. A game that opts in (its own **Connect to ObsiGama** toggle, off by default) uses the small
+[`@obsigama/sdk`](packages/sdk) to send each finished run to your ObsiGama account.
 
 ```
- game plugin (offline)        OBSIGAMA plugin (online hub)     Supabase (free tier)
+ game plugin (offline)        ObsiGama plugin (online hub)     Supabase (free tier)
  ┌──────────────────────┐ SDK  ┌──────────────────────────┐ HTTPS ┌──────────────────────────┐
  │ local stats / bests / │────▶│ account + session         │──────▶│ Auth, Postgres + RLS,     │
  │ achievements, queue   │ in- │ consent per game          │  RPC  │ ingest_batch() validation │
- │ "Connect to OBSIGAMA" │◀────│ catalog/library/friends   │◀──────│ badges, activity, Storage │
+ │ "Connect to ObsiGama" │◀────│ catalog/library/friends   │◀──────│ badges, activity, Storage │
  └──────────────────────┘proc └──────────────────────────┘       └──────────────────────────┘
 ```
+
+## Getting started
+
+1. Install **ObsiGama** from *Settings → Community plugins* and enable it.
+2. Click the gamepad icon in the ribbon (or run the command *Open ObsiGama*), create an account with your email and
+   confirm it from the email you receive.
+3. Pick a nickname, browse the **Catalog**, install a game plugin, and turn on **Connect to ObsiGama** in that
+   game's settings. Every finished run then shows up in your profile, achievements and leaderboards.
+4. Find friends by nickname on the **Friends** tab.
+
+No server setup is needed: the plugin uses the official ObsiGama server.
 
 ## What's in this repo
 
 | Path | What |
 |---|---|
-| `src/` | The OBSIGAMA Obsidian plugin (TypeScript, esbuild, plain DOM UI) |
+| `src/` | The ObsiGama Obsidian plugin (TypeScript, esbuild, plain DOM UI) |
 | `src/views/hub-view.ts` | Hub: Catalog, Library, Friends, Profile (public profiles, edit, avatar upload) |
 | `src/backend.ts` | Supabase client, auth, reads/writes, avatar upload |
 | `src/platform-api.ts` | In-process API that game plugins call through the SDK, consent dialog |
@@ -36,25 +47,29 @@ playable offline. A game that opts in (its own **Connect to OBSIGAMA** toggle, o
 | [`INTEGRATION.md`](INTEGRATION.md) | How to connect any game plugin |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Design notes and decisions |
 
-## Network use (disclosure)
+## Privacy and network use (disclosure)
 
 As required by Obsidian's developer policies:
 
-- **OBSIGAMA connects to the internet.** It talks only to the Supabase project whose URL you enter in its settings
-  (your own project; nothing is preconfigured). It is used for: your account (sign-up/sign-in), profile and
-  avatar, the game catalog, your library, friends, achievements, badges, leaderboards, and the results that
-  connected games send.
-- **An account is required** for everything except browsing the catalog.
-- **What is sent:** email and password (to Supabase Auth), your nickname, display name, bio, avatar image (as WebP),
-  privacy setting, friend requests, and for each game you explicitly connect: stats, best scores, achievements
-  and run durations. Nothing is read from your notes. No telemetry, no ads, no analytics.
-- **Online / sync switch:** in OBSIGAMA settings. When **off**, OBSIGAMA makes **no network requests at all**, accepts
-  nothing from games, and games keep their results in a local queue until you switch it back on. It is on by default.
+- **An account is required.** ObsiGama is an online service: sign-up/sign-in with email, then profile, library,
+  friends, achievements, badges and leaderboards live on the server. Browsing the catalog works signed out.
+- **Where data goes:** only to the official ObsiGama server, a [Supabase](https://supabase.com) project
+  (`https://eravzmmusvdtsqsxplij.supabase.co`), over HTTPS. The plugin ships its
+  public *publishable* key; access is limited by Row Level Security. No other servers are contacted.
+- **What is sent:** your email and password (to Supabase Auth), nickname, display name, bio, avatar (as WebP),
+  privacy setting, friend requests, and, only for games you explicitly connect, their stats, best scores,
+  achievements and run durations. **Nothing is read from your notes or vault files.** No telemetry, no ads, no analytics.
+- **Who sees it:** your profile, games and achievements are public or friends-only (your privacy setting);
+  your email is never shown to other players. Uploaded avatars are public images.
+- **Off switch:** Settings → ObsiGama → **Online / sync**. When off, ObsiGama makes **no network requests at all**,
+  accepts nothing from games, and games keep their results in a local queue until you switch it back on.
 - Your login session is stored in Obsidian's per-vault local storage (not in `data.json`, so it does not end up in
-  vault sync or git). Game plugins never see it.
-- Images you upload are public (anyone with the link can see your avatar).
+  vault sync or git). Game plugins never see it or any key.
+- To delete your account and data, open an issue in this repository or contact the author.
 
-## Set up your free Supabase project (once, ~10 minutes)
+## Run your own server (optional)
+
+ObsiGama works out of the box with the official server. To run a private copy of the backend instead:
 
 1. **Create the project.** Go to <https://supabase.com>, sign in, **New project**, pick the Free plan, any name
    (e.g. `s-hub`), a strong database password, and a region close to your players.
@@ -74,11 +89,12 @@ As required by Obsidian's developer policies:
    - Supabase's built-in email sender is only for testing (a few emails per hour, and only to your project's team
      members). For real users set up custom SMTP (*Authentication* → *Emails* → *SMTP settings*), e.g. a free
      Resend or Brevo account.
-   - For **email codes** (the "Email code" tab in OBSIGAMA), edit the *Magic Link* email template so it contains `{{ .Token }}`
+   - For **email codes** (the "Email code" tab in ObsiGama), edit the *Magic Link* email template so it contains `{{ .Token }}`
      (the 6-digit code) instead of / in addition to the link.
-4. **Copy the keys:** *Project Settings* → *API*: **Project URL** and the **anon / publishable** key.
-   Never use the `service_role` / secret key in the plugin.
-5. **In Obsidian:** Settings → OBSIGAMA → paste the URL and anon key → **Apply**. Open OBSIGAMA from the ribbon (gamepad icon)
+4. **Copy the keys:** *Project Settings* → *API keys*: **Project URL** and the **publishable** (`sb_publishable_…`)
+   or legacy `anon` key. Never use a secret / `service_role` key in the plugin.
+5. **In Obsidian:** Settings → ObsiGama → *Advanced: custom server* → paste the URL and key → **Apply**
+   (clear both fields to go back to the official server). Open ObsiGama from the ribbon (gamepad icon)
    and create your account.
 
 Free tier fit: fewer than 1,000 players use a tiny share of the free limits (50k monthly users, 500 MB database,
@@ -87,13 +103,13 @@ requests; open the dashboard to resume it.
 
 ## Images: always WebP, as light as possible
 
-- Every image uploaded through OBSIGAMA is converted **on the device** before upload: decoded, resized (avatars: center-crop
+- Every image uploaded through ObsiGama is converted **on the device** before upload: decoded, resized (avatars: center-crop
   to 256×256; icons: fit in 256×256; badges: 128×128), then encoded to WebP with a quality search that keeps the
   highest quality under the size budget (avatars < 50 KB, icons < 40 KB, badges < 16 KB) and shrinks the image if
   needed. See `src/image/`.
 - The server enforces it: the `avatars` and `game-icons` buckets accept **only `image/webp`**, with hard size limits
   (512 KB / 256 KB). Users can only write `avatars/<their user id>/…`.
-- Known gap: Safari/iOS cannot encode WebP from a canvas; OBSIGAMA shows "This device cannot encode WebP images yet" there.
+- Known gap: Safari/iOS cannot encode WebP from a canvas; ObsiGama shows "This device cannot encode WebP images yet" there.
   Later options: a small WASM encoder, or server-side re-encoding in a Supabase Edge Function.
 
 ## Badges
@@ -106,7 +122,7 @@ Badges are rows in `public.badges`; the server awards them, never the client:
   friendship accepted). After a counter changes, only **active badges of that rule type that the user does not own
   yet** are checked (`award_badges()`); owned badges are never re-checked. Each award is unique per user
   (`ON CONFLICT DO NOTHING`) and writes an activity entry. Newly awarded badges come back in the sync response so the
-  game or OBSIGAMA can show a toast; profiles read badges in the same `get_profile()` call.
+  game or ObsiGama can show a toast; profiles read badges in the same `get_profile()` call.
 - **Add a badge:** insert a row, e.g.
   ```sql
   insert into public.badges (id, name, description, sort_order, rule_type, threshold)
@@ -140,13 +156,13 @@ attaches `main.js`, `manifest.json` and `styles.css` to the GitHub release.
 - **Later:** messaging (only if it stays cheap: polling first, Realtime only in an open chat); community hub
   (postponed); OAuth (GitHub/Discord) sign-in; WebP encoding on iOS; server-side re-encoding Edge Function.
 
-## Add your game / Как добавить свою игру в OBSIGAMA
+## Add your game / Как добавить свою игру в ObsiGama
 
 Any Obsidian game plugin can join the catalog. **Every game is reviewed by hand by the maintainer** (code read-through
 and a play test in a clean vault) before it is listed, and a game can be rejected or delisted later.
 
 1. **Integrate the SDK** as described in [INTEGRATION.md](INTEGRATION.md): an `obsigama-manifest.json`, the
-   "Connect to OBSIGAMA" toggle in your settings, one `endRun` per finished run.
+   "Connect to ObsiGama" toggle in your settings, one `endRun` per finished run.
 2. **Open a submission issue** with the template:
    [Add a game / Добавить игру](https://github.com/NOMBER/ObsiGama/issues/new?template=add-game.yml).
    It asks for the game name, plugin id, public GitHub repo, community store status, a short description (~200
@@ -158,9 +174,9 @@ and a play test in a clean vault) before it is listed, and a game can be rejecte
 
 **Acceptance rules** (all required):
 
-- the game plays fully offline and without OBSIGAMA installed;
-- the "Connect to OBSIGAMA" toggle is opt-in and **off by default**;
-- no Supabase keys, tokens or other secrets in the plugin, and no own requests to OBSIGAMA's server;
+- the game plays fully offline and without ObsiGama installed;
+- the "Connect to ObsiGama" toggle is opt-in and **off by default**;
+- no Supabase keys, tokens or other secrets in the plugin, and no own requests to ObsiGama's server;
 - the official SDK is used unmodified (MIT);
 - the README discloses network use, as required by
   [Obsidian's developer policies](https://docs.obsidian.md/Developer+policies);
@@ -187,7 +203,7 @@ Use `--draft` to register a game without listing it. It needs `gh` (logged in) a
 
 ## License
 
-- **Launcher (the OBSIGAMA plugin, `src/`, `supabase/`)**: [GNU AGPL-3.0](LICENSE).
+- **Launcher (the ObsiGama plugin, `src/`, `supabase/`)**: [GNU AGPL-3.0](LICENSE).
 - **SDK (`packages/sdk/`) and integration examples (`examples/`)**: [MIT](packages/sdk/LICENSE), so any game plugin can bundle them freely.
 
 ---

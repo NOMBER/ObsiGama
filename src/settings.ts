@@ -1,5 +1,6 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
-import { PLATFORM_NAME } from "./brand";
+import { DEFAULT_SUPABASE_URL, PLATFORM_NAME } from "./brand";
+import { isSecretKey } from "./server";
 import type SPlugin from "./main";
 
 export interface LinkedGame {
@@ -11,6 +12,7 @@ export interface LinkedGame {
 export interface SSettings {
   /** master switch: false = OBSIGAMA makes no network requests at all */
   online: boolean;
+  /** custom server (advanced); empty = the official ObsiGama server */
   supabaseUrl: string;
   supabaseAnonKey: string;
   useRequestUrl: boolean;
@@ -54,25 +56,26 @@ export class SSettingTab extends PluginSettingTab {
         await p.setOnline(v);
       }));
 
-    new Setting(containerEl).setName("Server").setHeading();
+    new Setting(containerEl).setName("Advanced: custom server").setHeading();
+    containerEl.createEl("p", { cls: "setting-item-description", text: `Leave both fields empty to use the official ${PLATFORM_NAME} server. Only for people running their own copy of the backend.` });
     new Setting(containerEl)
       .setName("Supabase project URL")
-      .setDesc("From your Supabase project: Project Settings → API → Project URL, e.g. https://abcd.supabase.co")
-      .addText((t) => t.setPlaceholder("https://xxxx.supabase.co").setValue(p.settings.supabaseUrl)
+      .setDesc("Project Settings → API → Project URL.")
+      .addText((t) => t.setPlaceholder(DEFAULT_SUPABASE_URL).setValue(p.settings.supabaseUrl)
         .onChange(async (v) => { p.settings.supabaseUrl = v.trim(); await p.saveSettings(false); }));
     new Setting(containerEl)
-      .setName("Supabase anon (public) key")
-      .setDesc("Project Settings → API → anon / publishable key. Never paste the service_role key here.")
+      .setName("Supabase publishable (anon) key")
+      .setDesc("Project Settings → API keys → publishable key. Never paste a secret or service_role key here.")
       .addText((t) => {
         t.inputEl.type = "password";
-        t.setValue(p.settings.supabaseAnonKey).onChange(async (v) => { p.settings.supabaseAnonKey = v.trim(); await p.saveSettings(false); });
+        t.setPlaceholder("sb_publishable_…").setValue(p.settings.supabaseAnonKey).onChange(async (v) => { p.settings.supabaseAnonKey = v.trim(); await p.saveSettings(false); });
       });
     new Setting(containerEl)
       .setName("Apply server settings")
-      .setDesc("Reconnects with the URL and key above.")
+      .setDesc("Reconnects with the server above (or the official one when the fields are empty).")
       .addButton((b) => b.setButtonText("Apply").onClick(async () => {
-        if (p.settings.supabaseAnonKey.startsWith("eyJ") && p.settings.supabaseAnonKey.includes("service_role")) {
-          new Notice("That looks like a service_role key. Use the anon key.");
+        if (isSecretKey(p.settings.supabaseAnonKey)) {
+          new Notice("That looks like a secret key. Use the publishable key.");
           return;
         }
         await p.saveSettings(true);

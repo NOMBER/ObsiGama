@@ -78,7 +78,7 @@ export class HubView extends ItemView {
     }
     if (!st.configured) {
       const box = body.createDiv({ cls: "s-empty" });
-      box.createEl("p", { text: `${PLATFORM_NAME} needs a server. Paste your Supabase project URL and anon key in the settings (see the README).` });
+      box.createEl("p", { text: `${PLATFORM_NAME} cannot reach a server: the custom server in the settings is incomplete or uses a secret key. Clear both fields to use the official server.` });
       box.createEl("button", { text: "Open settings", cls: "mod-cta" }).onclick = () => this.plugin.openSettings();
       return;
     }

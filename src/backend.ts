@@ -2,6 +2,7 @@
 import { createClient, type Session, type SupabaseClient } from "@supabase/supabase-js";
 import type { App } from "obsidian";
 import { makeFetch, OfflineError } from "./net";
+import { isSecretKey, serverOf } from "./server";
 import type { SSettings } from "./settings";
 import { AVATAR_WEBP, toWebp } from "./image/webp";
 
@@ -87,7 +88,8 @@ export class Backend {
   /** (Re)creates or drops the client according to the settings. */
   async reconfigure(): Promise<void> {
     const s = this.settings();
-    const key = `${s.online}|${s.supabaseUrl}|${s.supabaseAnonKey}`;
+    const srv = serverOf(s);
+    const key = `${s.online}|${srv.url}|${srv.key}`;
     if (key === this.clientKey && (this.client || !s.online)) return;
     this.teardown();
     this.clientKey = key;
@@ -97,7 +99,7 @@ export class Backend {
         setItem: (k: string, v: string) => this.app.saveLocalStorage(k, v),
         removeItem: (k: string) => this.app.saveLocalStorage(k, null),
       };
-      this.client = createClient(s.supabaseUrl, s.supabaseAnonKey, {
+      this.client = createClient(srv.url, srv.key, {
         auth: { storage: vaultStorage, storageKey: SESSION_KEY, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
         global: { fetch: makeFetch(() => this.settings().online, () => this.settings().useRequestUrl) },
       });
@@ -132,8 +134,8 @@ export class Backend {
   }
 
   configured(): boolean {
-    const s = this.settings();
-    return /^https:\/\/.+/.test(s.supabaseUrl) && s.supabaseAnonKey.length > 20;
+    const { url, key } = serverOf(this.settings());
+    return /^https:\/\/.+/.test(url) && key.length > 20 && !isSecretKey(key);
   }
 
   status(): BackendStatus {
@@ -158,7 +160,7 @@ export class Backend {
   /** The client, or an error explaining why there is none. */
   sb(): SupabaseClient {
     if (!this.settings().online) throw new OfflineError();
-    if (!this.client) throw new Error("Server is not configured. Open OBSIGAMA settings and enter the Supabase URL and anon key.");
+    if (!this.client) throw new Error("Server is not configured. Check the custom server fields in ObsiGama settings.");
     return this.client;
   }
 
