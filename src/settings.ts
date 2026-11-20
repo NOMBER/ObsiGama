@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting, type SettingDefinitionItem } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, requireApiVersion, type SettingDefinitionItem } from "obsidian";
 import { DEFAULT_SUPABASE_URL, PLATFORM_NAME } from "./brand";
 import { isSecretKey } from "./server";
 import type SPlugin from "./main";
@@ -126,8 +126,8 @@ export class SSettingTab extends PluginSettingTab {
   }
 
   private refresh(): void {
-    const tab = this as SSettingTab & { update?: () => void };
-    if (typeof tab.update === "function") tab.update();
+    // SettingTab.update() is 1.13.0+; requireApiVersion is the guard the lint rule accepts.
+    if (requireApiVersion("1.13.0")) this.update();
     else this.renderLegacy();
   }
 

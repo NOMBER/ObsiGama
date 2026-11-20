@@ -1,4 +1,6 @@
-# ObsiGama — a game hub for Obsidian
+# GAMA Hub
+
+ObsiGama — a game hub for Obsidian
 
 <p align="center"><img src="assets/logo.webp" alt="ObsiGama" width="256"></p>
 

@@ -10,6 +10,6 @@ describe("plugin id", () => {
     expect(PLATFORM_READY_EVENT).toBe(`${m.id}:ready`);
     expect(PLATFORM_UNLOAD_EVENT).toBe(`${m.id}:unload`);
     expect(m.name).toBe("GAMA Hub");
-    expect(m.version).toBe("1.0.3");
+    expect(m.version).toBe("1.0.4");
   });
 });

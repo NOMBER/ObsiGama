@@ -1,7 +1,7 @@
 {
   "id": "obsigama",
   "name": "GAMA Hub",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minAppVersion": "1.8.7",
   "description": "Browse a game catalog, keep a player profile with friends, achievements, badges and leaderboards, and sync results from game plugins that opt in. Requires an online account.",
   "author": "NOMBER",
