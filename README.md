@@ -31,7 +31,8 @@ playable offline. A game that opts in (its own **Connect to ObsiGama** toggle, o
    confirm it from the email you receive.
 3. Pick a nickname, browse the **Catalog**, install a game plugin, and turn on **Connect to ObsiGama** in that
    game's settings. Every finished run then shows up in your profile, achievements and leaderboards.
-4. Find friends by nickname on the **Friends** tab.
+4. Find friends by nickname on the **Friends** tab. The bell next to your nickname shows friend requests, accepted friendships and new badges (not achievements).
+5. From your **Library**, press **Play** to start an installed game, or **Install** to open it in the Obsidian community plugins list. Open a game page for its **Reviews**.
 
 No server setup is needed: the plugin uses the official ObsiGama server.
 
@@ -40,7 +41,7 @@ No server setup is needed: the plugin uses the official ObsiGama server.
 | Path | What |
 |---|---|
 | `src/` | The ObsiGama plugin (TypeScript, esbuild, plain DOM UI) |
-| `src/views/hub-view.ts` | Hub: Catalog, Library, Friends, Profile (public profiles, edit, avatar upload) |
+| `src/views/hub-view.ts` | Hub: Catalog, Library, Friends, Profile, game page + reviews, notifications |
 | `src/backend.ts` | Supabase client, auth, reads/writes, avatar upload |
 | `src/platform-api.ts` | In-process API that game plugins call through the SDK, consent dialog |
 | `src/image/` | Any image → small WebP (resize, center-crop, quality search) |
@@ -64,14 +65,15 @@ As required by Obsidian's developer policies:
   (`https://eravzmmusvdtsqsxplij.supabase.co`), over HTTPS. The plugin ships its
   public *publishable* key; access is limited by Row Level Security. No other servers are contacted.
 - **What is sent:** your email and password (to Supabase Auth), nickname, display name, bio, avatar (as WebP),
-  privacy setting, friend requests, and, only for games you explicitly connect, their stats, best scores,
-  achievements and run durations. **Nothing is read from your notes or vault files.** No telemetry, no ads, no analytics.
+  privacy setting, friend requests, optional game reviews (thumbs + text), and, only for games you explicitly connect,
+  their stats, best scores, achievements and run durations. **Nothing is read from your notes or vault files.**
+  No telemetry, no ads, no analytics.
 - **Who sees it:** your profile, games and achievements are public or friends-only (your privacy setting);
-  your email is never shown to other players. Uploaded avatars are public images.
+  reviews you post on a game page are visible to everyone. Your email is never shown to other players.
+  Uploaded avatars are public images.
 - **Off switch:** Settings → ObsiGama → **Online / sync**. When off, ObsiGama makes **no network requests at all**,
   accepts nothing from games, and games keep their results in a local queue until you switch it back on.
-- Your login session is stored in Obsidian's per-vault local storage (not in `data.json`, so it does not end up in
-  vault sync or git). Game plugins never see it or any key.
+- Your login session is stored in the plugin's `data.json`. Game plugins never see it or any key.
 - To delete your account and data, open an issue in this repository or contact the author.
 
 ## Run your own server (optional)

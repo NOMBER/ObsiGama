@@ -124,16 +124,77 @@ select pg_temp.ok(:'p'::jsonb ->> 'bio' = '<b>hi</b>', 'bio stored as plain text
 select pg_temp.ok((:'p'::jsonb -> 'counts' ->> 'friends')::int = 1, 'friend counter');
 select pg_temp.ok(:'p'::jsonb -> 'badges' @> '[{"id": "first_friend"}]', 'first_friend badge on accept');
 select pg_temp.ok(jsonb_array_length(:'p'::jsonb -> 'games') = 2 and jsonb_array_length(:'p'::jsonb -> 'activity') > 3, 'games and activity in profile');
+select pg_temp.ok((select count(*) from my_notifications() n where n.kind = 'friend_request' and n.read_at is null) = 0, 'accepted request notice cleared for accepter');
+select pg_temp.ok((select count(*) from my_notifications() n where n.kind = 'badge' and n.badge_id = 'first_friend') = 1, 'badge notice on first_friend for accepter');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', false);
+select pg_temp.ok((select count(*) from my_notifications() n where n.kind = 'friend_accepted' and n.actor_id = '00000000-0000-0000-0000-00000000000c') = 1, 'requester gets accepted notice');
+select pg_temp.ok((select count(*) from my_notifications() n where n.kind = 'badge' and n.badge_id = 'welcome') = 1, 'welcome badge notice on sign-up');
+select pg_temp.ok(unread_notification_count() > 0, 'alice has unread notices');
+select pg_temp.ok(mark_notifications_read(null) > 0, 'mark all read');
+select pg_temp.ok(unread_notification_count() = 0, 'all alice notices read');
+do $$ begin
+  begin insert into notifications (user_id, kind) values ('00000000-0000-0000-0000-00000000000a', 'badge');
+        raise exception 'FAIL: direct notification insert allowed';
+  exception when insufficient_privilege then raise notice 'ok - clients cannot insert notifications'; end;
+end $$;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', false);
+select pg_temp.ok((select count(*) from my_notifications() n where n.actor_id = '00000000-0000-0000-0000-00000000000a' and n.kind = 'friend_accepted') = 0, 'cannot see someone else''s notices');
 select pg_temp.ok((select count(*) from get_leaderboard('hellvault', 'arena_kills')) = 1, 'leaderboard visible to friend');
 select pg_temp.ok(remove_friend('00000000-0000-0000-0000-00000000000a') = 'ok', 'friend removed');
+
+-- reviews: library required, thumbs + body, rate limit, public read, edit/delete own
+do $$ begin
+  begin perform upsert_review('hellvault', true, 'hi');
+        raise exception 'FAIL: review without library allowed';
+  exception when others then
+    if sqlerrm like '%library%' then raise notice 'ok - review requires library'; else raise; end if;
+  end;
+end $$;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', false);
+select upsert_review('hellvault', true, 'Great run') as rv \gset
+select pg_temp.ok((:'rv'::jsonb ->> 'recommend')::boolean and (:'rv'::jsonb ->> 'body') = 'Great run', 'alice posts a thumbs-up review');
+select pg_temp.ok((get_game_reviews('hellvault') ->> 'total')::int = 1
+              and (get_game_reviews('hellvault') ->> 'up')::int = 1
+              and (get_game_reviews('hellvault') -> 'mine' ->> 'body') = 'Great run', 'review listed and mine visible');
+do $$ begin
+  begin perform upsert_review('hellvault', false, 'edit too soon');
+        raise exception 'FAIL: review rate limit skipped';
+  exception when others then
+    if sqlerrm like '%wait%' then raise notice 'ok - review rate limited'; else raise; end if;
+  end;
+end $$;
+reset role;
+update public.reviews set updated_at = now() - interval '1 minute' where user_id = '00000000-0000-0000-0000-00000000000a';
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', false);
+select pg_temp.ok(not (upsert_review('hellvault', false, 'Changed my mind') ->> 'recommend')::boolean, 'alice can edit after cooldown');
+select pg_temp.ok((get_game_reviews('hellvault') ->> 'down')::int = 1 and (get_game_reviews('hellvault') ->> 'up')::int = 0, 'thumbs flipped');
+do $$ begin
+  begin perform upsert_review('hellvault', true, repeat('x', 1001));
+        raise exception 'FAIL: long review allowed';
+  exception when others then
+    if sqlerrm like '%1000%' then raise notice 'ok - review max 1000'; else raise; end if;
+  end;
+end $$;
+do $$ begin
+  begin insert into reviews (user_id, game_id, rating, body)
+        values ('00000000-0000-0000-0000-00000000000a', 'hellvault', 5, 'direct');
+        raise exception 'FAIL: direct review insert allowed';
+  exception when insufficient_privilege then raise notice 'ok - reviews only via RPC'; end;
+end $$;
+select delete_review('hellvault');
+select pg_temp.ok((get_game_reviews('hellvault') ->> 'total')::int = 0, 'review deleted');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', false);
 
 -- anon
 reset role;
 set role anon;
 select set_config('request.jwt.claim.sub', '', false);
 select pg_temp.ok((select count(*) from games) = 2, 'catalog is public');
+select pg_temp.ok((get_game_reviews('hellvault') ->> 'total')::int = 0, 'anon can read reviews');
 select pg_temp.ok((select string_agg(plugin_id, ',' order by plugin_id) from games) = 'good-old-games,vault-shards', 'real plugin ids');
 select pg_temp.ok((select count(*) from games where repo_url like 'https://github.com/NOMBER/%') = 2, 'repo urls set');
+select pg_temp.ok((select count(*) from games where in_store and icon_url like '%/game-icons/games/%' and launch_command is not null) = 2, 'store, icon and launch_command set');
 select pg_temp.ok((select count(*) from achievements where game_id = 'mini-old-games') = 67 and (select count(*) from achievements where game_id = 'hellvault') = 21, 'real achievement lists');
 select pg_temp.ok((select count(*) from leaderboards where game_id = 'hellvault' and not retired) = 3, 'hellvault boards incl. arena_wave');
 select pg_temp.ok((get_profile('alice') ->> 'restricted')::boolean, 'anon sees restricted card');

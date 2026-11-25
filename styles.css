@@ -5,8 +5,7 @@
 .s-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--background-modifier-border); position: sticky; top: 0; background: var(--background-primary); z-index: 1; }
 .s-logo { font-weight: 700; font-size: 1.2em; margin-right: 8px; }
 .s-nav { display: flex; gap: 4px; flex-wrap: wrap; }
-.s-nav button.is-active, .s-me button.is-active { background: var(--interactive-accent); color: var(--text-on-accent); }
-.s-me { margin-left: auto; }
+.s-nav button.is-active, .s-header-actions button.is-active { background: var(--interactive-accent); color: var(--text-on-accent); }
 .s-body { padding: 12px; max-width: 900px; margin: 0 auto; }
 .s-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
 .s-card { border: 1px solid var(--background-modifier-border); border-radius: 8px; padding: 10px; margin-bottom: 10px; background: var(--background-secondary); }
@@ -40,3 +39,17 @@
 .s-stats { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin-top: 6px; font-size: var(--font-ui-small); }
 .s-line { padding: 3px 0; font-size: var(--font-ui-small); border-bottom: 1px solid var(--background-modifier-border-hover); }
 .s-edit button { margin-top: 8px; }
+
+.s-header-actions { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.s-icon-btn { width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.s-icon-btn svg { width: 16px; height: 16px; }
+.s-bell-wrap { position: relative; }
+.s-bell-count { position: absolute; top: -3px; right: -3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--interactive-accent); color: var(--text-on-accent); font-size: 10px; line-height: 16px; text-align: center; }
+.s-bell-menu { position: absolute; right: 0; top: calc(100% + 6px); width: 280px; max-height: 360px; overflow: auto; z-index: 20; margin-bottom: 0; box-shadow: var(--shadow-s); }
+.s-bell-item { padding: 8px 0; cursor: pointer; border-bottom: 1px solid var(--background-modifier-border-hover); }
+.s-bell-item:last-child { border-bottom: none; }
+.s-bell-item.is-unread { font-weight: 600; }
+.s-saved { color: var(--text-success, #2aa85c); font-size: var(--font-ui-small); }
+.s-subnav { margin: 8px 0 12px; }
+.s-thumbs button.is-on { background: var(--interactive-accent); color: var(--text-on-accent); }
+.s-review { margin-top: 8px; }

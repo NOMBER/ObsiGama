@@ -23,6 +23,40 @@ export interface CatalogGame {
   description: string | null;
   repo_url: string | null;
   icon_url: string | null;
+  launch_command: string | null;
+  in_store: boolean;
+}
+
+export interface NoticeRow {
+  id: number;
+  kind: "friend_request" | "friend_accepted" | "badge";
+  actor_id: string | null;
+  actor_username: string | null;
+  actor_avatar_url: string | null;
+  badge_id: string | null;
+  badge_name: string | null;
+  created_at: string;
+  read_at: string | null;
+}
+
+export interface ReviewRow {
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  recommend: boolean;
+  body: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GameReviews {
+  game_id: string;
+  up: number;
+  down: number;
+  total: number;
+  mine: { recommend: boolean; body: string | null; created_at: string; updated_at: string } | null;
+  reviews: ReviewRow[];
 }
 
 export interface FriendRow {
@@ -225,9 +259,14 @@ export class Backend {
   // ---------- reads ----------
   async catalog(): Promise<CatalogGame[]> {
     const { data, error } = await this.sb().from("games")
-      .select("id, plugin_id, name, description, repo_url, icon_url").eq("status", "listed").order("sort_order").order("name");
+      .select("id, plugin_id, name, description, repo_url, icon_url, launch_command, in_store").eq("status", "listed").order("sort_order").order("name");
     if (error) throw error;
-    return data ?? [];
+    const rows = (data ?? []) as CatalogGame[];
+    return rows.map((g) => ({
+      ...g,
+      launch_command: g.launch_command ?? null,
+      in_store: !!g.in_store,
+    }));
   }
   async profile(username: string): Promise<Profile | null> {
     return (await this.rpc<Profile | null>("get_profile", { p_username: username })) ?? null;
@@ -279,6 +318,28 @@ export class Backend {
     const { error: e2 } = await sb.from("profiles").update({ avatar_url: url }).eq("id", uid);
     if (e2) throw e2;
     return url;
+  }
+
+  async notifications(limit = 40): Promise<NoticeRow[]> {
+    return (await this.rpc<NoticeRow[] | null>("my_notifications", { p_limit: limit })) ?? [];
+  }
+  async unreadNotificationCount(): Promise<number> {
+    return (await this.rpc<number | null>("unread_notification_count")) ?? 0;
+  }
+  async markNotificationsRead(ids?: number[]): Promise<number> {
+    return (await this.rpc<number | null>("mark_notifications_read", { p_ids: ids ?? null })) ?? 0;
+  }
+
+  async gameReviews(gameId: string): Promise<GameReviews> {
+    return (await this.rpc<GameReviews | null>("get_game_reviews", { p_game_id: gameId, p_limit: 50 })) ?? {
+      game_id: gameId, up: 0, down: 0, total: 0, mine: null, reviews: [],
+    };
+  }
+  async upsertReview(gameId: string, recommend: boolean, body: string): Promise<void> {
+    await this.rpc("upsert_review", { p_game_id: gameId, p_recommend: recommend, p_body: body });
+  }
+  async deleteReview(gameId: string): Promise<void> {
+    await this.rpc("delete_review", { p_game_id: gameId });
   }
 
   /** Sync RPC used by game plugins through the PlatformAPI. */

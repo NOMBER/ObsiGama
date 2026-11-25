@@ -61,6 +61,11 @@ claims with rate limits and marks them as claimed.
 
 The server validates against **its registered copy** of the manifest, not what the client sends.
 
+When the game is listed in the catalog, the server can also store an optional `launch_command` (the Obsidian command
+id that opens the game, with or without the `pluginId:` prefix, e.g. `open-hub` or `my-game:open`). The ObsiGama
+library uses it for the **Play** button. If it is missing, ObsiGama tries a command of your plugin whose id contains
+`open`, `play` or `launch`, then your first command, and finally your plugin settings.
+
 ## 3. Wire it in (three places)
 
 ```ts
